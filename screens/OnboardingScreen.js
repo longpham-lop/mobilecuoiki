@@ -1,25 +1,27 @@
 import React from "react";
 import { useFonts, RubikGlitch_400Regular } from '@expo-google-fonts/rubik-glitch';
+import { MiltonianTattoo_400Regular } from '@expo-google-fonts/miltonian-tattoo';
 
 import { View,Image, Text, ImageBackground, TouchableOpacity, StyleSheet } from "react-native";
 
 const OnboardingScreen = ({ navigation }) => {
     const [fontsLoaded] = useFonts({
-      RubikGlitch_400Regular,
+      RubikGlitch_400Regular,MiltonianTattoo_400Regular,
     });
   
     if (!fontsLoaded) {
       return null;
     }
+    
   return (
-    <ImageBackground source={require("../assets/onboarding.png")} style={styles.background}>
+    <ImageBackground source={require("../assets/splash-icon.png")} style={styles.background}>
       <View style={styles.overlay}>
-        <Image source={require("../assets/logo.png")} style={styles.logo} />
-        <Text style={styles.title}>Welcome</Text>
-        <Text style={styles.title}>to our store</Text>
-        <Text style={styles.subtitle}>Get your groceries in as fast as one hour</Text>
-        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("SignIn")}>
-          <Text style={styles.buttonText}>Get Started</Text>
+      <Text style={styles.subtitle}>Welcome to</Text>
+        <Text style={styles.title}>BEN </Text>
+        <Text style={styles.title}>SPORT</Text>
+        <Text style={styles.subtitle1}>Join us</Text>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate("Login")}>
+          <Text style={styles.buttonText}>Continue</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
@@ -39,25 +41,32 @@ const styles = StyleSheet.create({
     fontSize: 45,
     color: "#fff",
     textAlign: "center",
-    fontFamily:'RubikGlitch_400Regular',
+    fontFamily:'MiltonianTattoo_400Regular',
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 24,
     color: "#fff",
     textAlign: "center",
     marginVertical: 10,
+    fontFamily:'MiltonianTattoo_400Regular',
+  },
+  subtitle1: {
+    fontSize: 16,
+    color: "#fff",
+    textAlign: "center",
+    marginVertical: 10,
+    fontFamily:'MiltonianTattoo_400Regular',
   },
   button: {
-    backgroundColor: "#53B175",
+    backgroundColor: "#E07415",
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 12,
-    paddingLeft:150,
-    paddingRight:150,
-    paddingTop:20,
-    paddingBottom:20,
+    alignItems:"center",
     marginTop: 20,
     marginBottom:70,
+    height:48,
+    width:360,
   },
   buttonText: {
     color: "#fff",
@@ -69,6 +78,10 @@ const styles = StyleSheet.create({
     height: 80,
     resizeMode: "contain",
   },
+  overlay:{
+    alignItems:"center",
+    top:-300,
+  }
 });
 
 export default OnboardingScreen;

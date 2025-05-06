@@ -75,10 +75,10 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="SignIn" component={SignInScreen} />
+        {/* <Stack.Screen name="SignIn" component={SignInScreen} />
         <Stack.Screen name="NumberScreen" component={NumberScreen} />
         <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
-        <Stack.Screen name="Location" component={LocationScreen} />
+        <Stack.Screen name="Location" component={LocationScreen} /> */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
         
