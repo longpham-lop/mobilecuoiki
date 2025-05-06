@@ -1,7 +1,16 @@
 import React from "react";
+import { useFonts, RubikGlitch_400Regular } from '@expo-google-fonts/rubik-glitch';
+
 import { View,Image, Text, ImageBackground, TouchableOpacity, StyleSheet } from "react-native";
 
 const OnboardingScreen = ({ navigation }) => {
+    const [fontsLoaded] = useFonts({
+      RubikGlitch_400Regular,
+    });
+  
+    if (!fontsLoaded) {
+      return null;
+    }
   return (
     <ImageBackground source={require("../assets/onboarding.png")} style={styles.background}>
       <View style={styles.overlay}>
@@ -28,9 +37,9 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 45,
-    fontWeight: "bold" ,
     color: "#fff",
     textAlign: "center",
+    fontFamily:'RubikGlitch_400Regular',
   },
   subtitle: {
     fontSize: 18,
