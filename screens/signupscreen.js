@@ -1,142 +1,246 @@
-// signupscreen.js
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView,Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ImageBackground, Alert } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import { API_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const SignupScreen = ({ navigation }) => {
-  const [username, setUsername] = useState('');
+export default function SignUpScreen({ navigation }) {
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
+  const handleSignup = async () => {
+    if (!email || !password || !firstName || !lastName || !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+    if (password !== confirmPassword) {
+      Alert.alert('Error', 'Passwords do not match.');
+      return;
+    }
 
-  const handleSignup = () => {
-    // Xử lý đăng ký
-    console.log('Signed up');
+    try {
+      const response = await fetch(`${API_URL}/shopbongda/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, firstName, lastName }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('info', JSON.stringify(data.user));
+        await AsyncStorage.setItem('token', data.jwt);
+        navigation.navigate('MainTabs');
+      } else {
+        const error = await response.text();
+        Alert.alert('Signup Failed', error);
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      Alert.alert('Error', 'Something went wrong. Please try again.');
+    }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-        <Image source ={require('../assets/carrot.png')} style = {styles.image}/>
-      <Text style={styles.title}>Sign Up</Text>
-      <Text style={styles.subtitle}>Enter your credentials to continue</Text>
+    <ImageBackground source={require("../assets/splash-icon.png")} style={styles.background}>
+      <View style={styles.container}>
+        <Text style={styles.header}>Sign Up</Text>
 
-      <Text style={styles.label}>Username</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Username"
-        value={username}
-        onChangeText={setUsername}
-      />
-      <Text style={styles.label}>Email</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Email"
-              value={email}
-              onChangeText={setEmail}
-            />
-            <Text style={styles.label}>Password</Text>
-            <View style={styles.passwordContainer}>
-              
-              <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={!passwordVisible}
-                value={password}
-                onChangeText={setPassword}
-              />
-              <Ionicons
-                name={passwordVisible ? 'eye' : 'eye-off'}
-                size={24}
-                color="gray" 
-                onPress={() => setPasswordVisible(!passwordVisible)}
-                style={styles.eyeIcon}
-              />
-              </View>
+        <TextInput
+          style={styles.input}
+          placeholder="   First name"
+          value={firstName}
+          onChangeText={setFirstName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="   Last name"
+          value={lastName}
+          onChangeText={setLastName}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="   Email address"
+          value={email}
+          onChangeText={setEmail}
+        />
 
-      <Text style={styles.terms}>
-        By continuing you agree to our <Text style={styles.link}>Terms of Service</Text> and{' '}
-        <Text style={styles.link}>Privacy Policy</Text>.
-      </Text>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="   Password"
+            secureTextEntry={!passwordVisible}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <Ionicons
+            name={passwordVisible ? 'eye' : 'eye-off'}
+            size={24}
+            color="gray"
+            onPress={() => setPasswordVisible(!passwordVisible)}
+            style={styles.eyeIcon}
+          />
+        </View>
 
-      <TouchableOpacity style={styles.signupBtn} onPress={handleSignup}>
-        <Text style={styles.signupText}>Sing Up</Text>
-      </TouchableOpacity>
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="   Confirm Password"
+            secureTextEntry={!confirmPasswordVisible}
+            value={confirmPassword}
+            onChangeText={setConfirmPassword}
+          />
+          <Ionicons
+            name={confirmPasswordVisible ? 'eye' : 'eye-off'}
+            size={24}
+            color="gray"
+            onPress={() => setConfirmPasswordVisible(!confirmPasswordVisible)}
+            style={styles.eyeIcon}
+          />
+        </View>
 
-      <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.footerText}>
-          Already have an account? <Text style={styles.link}>Singup</Text>
+        <TouchableOpacity style={styles.button} onPress={handleSignup}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.signup}>
+          -----------------   Continue with   ------------------
         </Text>
-      </TouchableOpacity>
-    </ScrollView>
-  );
-};
 
-export default SignupScreen;
+        <Image source={require('../assets/googleapplefacebuttons.png')} style={styles.image} />
+
+        <Text style={styles.or}>
+
+          ------------------     OR     ------------------
+        </Text>
+
+        <TouchableOpacity style={styles.button1} onPress={() => navigation.navigate('MainTabs')}>
+          <Text style={styles.buttonText1}>Continue as a guest</Text>
+        </TouchableOpacity>
+
+        <Text style={styles.account}>
+          Already have account ?{' '}
+          <Text style={styles.signupLink} onPress={() => navigation.navigate('Login')}>
+            Log in
+          </Text>
+        </Text>
+      </View>
+    </ImageBackground>
+  );
+}
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'flex-end',
+    backgroundColor: '#fff', // màu trắng phía sau
+    bottom: 10,
+  },
   container: {
-    flexGrow: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    padding: 30,
     justifyContent: 'center',
-    bottom: -3,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 45,
+    borderTopRightRadius: 45,
+    elevation: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity:1,
+    shadowRadius: 10,
+    margin:10,
+    marginBottom:-5,
+    
   },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-  },
-  subtitle: {
-    fontSize: 14,
-    color: 'gray',
-    marginBottom: 50,
+  header: {
+    color: '#E07415',
+    top: -25,
+    fontSize: 26,
+    fontWeight: '600',
+    marginBottom: 10,
   },
   input: {
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-    marginBottom: 40,
+    top: -30,
+    borderWidth: 2,
+    borderColor: '#E0741538',
+    marginBottom: 25,
     fontSize: 16,
     paddingVertical: 8,
-    width: 390,
-
-  },
-  terms: {
-    fontSize: 12,
-    color: 'gray',
-    marginBottom: 15,
-  },
-  link: {
-    color: '#00b300',
-    textDecorationLine: 'underline',
-  },
-  signupBtn: {
-    backgroundColor: '#00b300',
-    paddingVertical: 14,
+    paddingHorizontal: 12,
+    width: 360,
+    height: 48,
     borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 15,
+    borderStyle: 'solid',
+    right: 10,
   },
-  signupText: {
+  button: {
+    top: -30,
+    backgroundColor: '#E07415BF',
+    paddingVertical: 14,
+    borderRadius: 45,
+    alignItems: 'center',
+    marginBottom: 30,
+    width: 360,
+    height: 48,
+    right: 7,
+  },
+  buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
   },
-  footerText: {
-    fontSize: 13,
-    alignSelf: 'center',
-    fontWeight:'bold', 
+  signup: {
+    top: -30,
+    textAlign: 'center',
+    color: '#E07415',
   },
-  image: {
-    left: '45%',
-    bottom: '10%',
+  signupLink: {
+    color: '#E07415',
+    fontWeight: 'bold',
   },
   passwordContainer: {
     flexDirection: 'row',
-    
   },
   eyeIcon: {
+    top: -25,
     padding: 5,
-    right: 30,
+    right: 50,
+  },
+  image: {
+    width: 240,
+    height: 50,
+    resizeMode: 'contain',
+    alignSelf: 'center',
+    top: -20,
+  },
+  button1: {
+    borderWidth: 2,
+    borderColor: '#E07415BF',
+    paddingVertical: 14,
+    borderRadius: 45,
+    alignItems: 'center',
+    marginBottom: 30,
+    width: 360,
+    height: 48,
+    alignSelf: 'center',
+  },
+  buttonText1: {
+    color: '#E07415',
+    fontSize: 16,
+  },
+  or: {
+    top: -15,
+    textAlign: 'center',
+    color: '#E07415',
+  },
+  account: {
+    top: -20,
+    textAlign: 'center',
+    color: '#E07415',
   },
 });

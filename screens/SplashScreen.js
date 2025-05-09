@@ -1,25 +1,24 @@
-import React, { useEffect } from "react";
-import { View, Image, StyleSheet,Text } from "react-native";
+import React from 'react';
+import { View, Text, ImageBackground, StyleSheet, TouchableOpacity } from 'react-native';
 
-const SplashScreen = ({ navigation }) => {
-  useEffect(() => {
-    setTimeout(() => {
-      navigation.replace("Onboarding");
-    }, 2000); // Chuyển màn hình sau 2 giây
-  }, []);
-
+export default function SplashScreen({ navigation }) {
   return (
-    <View style={styles.container}>
-      <View style={styles.logoTextContainer}>
-        <Image source={require("../assets/logo.png")} style={styles.logo} />
-        <View style={styles.textContainer}>
-          <Text style={styles.title}>nectar</Text>
-          <Text style={styles.subtitle}>online groceries</Text>
-        </View>
+    <ImageBackground
+      source={require('../assets/splash-icon.png')} // Thay đường dẫn nếu khác
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <View style={styles.overlay}>
+        <Text style={styles.welcome}>Welcome to</Text>
+        <Text style={styles.logo}>BEN{'\n'}SPORT</Text>
+        <Text style={styles.join}>Join us</Text>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('Home')}>
+          <Text style={styles.buttonText}>Continue</Text>
+        </TouchableOpacity>
       </View>
-    </View>
+    </ImageBackground>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -54,4 +53,3 @@ const styles = StyleSheet.create({
 
 });
 
-export default SplashScreen;

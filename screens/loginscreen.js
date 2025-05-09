@@ -58,7 +58,7 @@ export default function LoginScreen({ navigation }) {
         <View style={styles.passwordContainer}>
           <TextInput
             style={styles.input}
-            placeholder="   Password"
+            placeholder="   Password" 
             secureTextEntry={!passwordVisible}
             value={password}
             onChangeText={setPassword}
@@ -79,7 +79,7 @@ export default function LoginScreen({ navigation }) {
         </TouchableOpacity>
 
         <Text style={styles.signup}>
-          -------------------------     Continue with     -------------------------
+          -----------------   Continue with   ------------------
         </Text>
 
         <Image source={require('../assets/googleapplefacebuttons.png')} style={styles.image} />
@@ -88,7 +88,7 @@ export default function LoginScreen({ navigation }) {
         <Text></Text>
         <Text></Text>
         <Text style={styles.signup}>
-          - - - - - - - - - - - - - - - - - - - - - - - -     OR     - - - - - - - - - - - - - - - - - - - - - - - -
+          ------------------     OR     ------------------
         </Text>
 
         <TouchableOpacity style={styles.button1} onPress={() => navigation.navigate('MainTabs')}>
@@ -147,6 +147,7 @@ const styles = StyleSheet.create({
     height:48,
     borderRadius: 10,
     borderStyle: 'solid', 
+    right: 10,
   },
   forgot: {
     top:-30,
@@ -164,11 +165,12 @@ const styles = StyleSheet.create({
     borderRadius: 45,
     width :360,
     height :48,
+    right: 7,
   },
   button1: {
     borderWidth: 2 ,
     color:'#E07415BF' ,
-    top:-30,
+    top: -2020,
     borderColor: '#E07415BF' ,
     paddingVertical: 14,
     borderRadius: 8,
@@ -181,6 +183,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     fontSize: 16,
+    right: 5,
     
   },
   buttonText1: {
@@ -206,6 +209,6 @@ const styles = StyleSheet.create({
   eyeIcon: {
     top:-25,
     padding: 5,
-    right: 35,
+    right: 50,
   },
 });

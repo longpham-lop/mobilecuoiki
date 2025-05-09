@@ -1,446 +1,269 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TextInput,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  FlatList,
-} from 'react-native';
-import { Ionicons, Feather, AntDesign } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
-import ProductCard from '../components/ProductCard';
+import React from 'react';
+import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
-  const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const filteredProducts = ProductCard.filter((product) =>
-    product.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
-    <View style={styles.container}>
-      {/* Header Location + Search */}
-      <Image source={require('../assets/carrot.png')} style={styles.image3} />
-
+    <ScrollView style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.locationText}>
-          <Ionicons name="location-sharp" size={20} color="#4CAF50" />
-          Dhaka, Banassre
-        </Text>
+        <Text style={styles.logo}>BEN</Text>
+        <Ionicons name="notifications-outline" size={24} color="black" />
       </View>
 
-      <View style={styles.searchBar}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search Store"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <Feather name="search" size={20} color="gray" />
-      </View>
-
-      {/* Nếu có nhập searchQuery thì chỉ show kết quả tìm kiếm */}
-      {searchQuery.length > 0 ? (
-        filteredProducts.length > 0 ? (
-          <FlatList
-            data={filteredProducts}
-            numColumns={2}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingTop: 16,
-            }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.card1}
-                onPress={() =>
-                  navigation.navigate('ProductDetail', { product: item })
-                }
-              >
-                <Image source={item.image} style={styles.image1} />
-                <View style={styles.a}>
-                  <Text style={styles.name1}>{item.name}</Text>
-                  <Text style={styles.price1}>
-                    ${item.price.toFixed(2)}
-                  </Text>
-                </View>
-                <View style={styles.b1}>
-                  <TouchableOpacity
-                    style={styles.addButton1}
-                    onPress={() =>
-                      navigation.navigate('ProductDetail', { product: item })
-                    }
-                  >
-                    <Text style={styles.addText1}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        ) : (
-          <View style={{ alignItems: 'center', marginTop: 40 }}>
-            <Text>Không tìm thấy sản phẩm nào</Text>
-          </View>
-        )
-      ) : (
-        /* Ngược lại (chưa nhập tìm kiếm), show toàn bộ nội dung mặc định */
-        <ScrollView>
-          <Image
-            style={styles.banner}
-            source={require('../assets/main/home/banner.png')}
-          />
-
-          {/* Exclusive Offer */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Exclusive Offer</Text>
-            <Text style={styles.seeAll}>See all</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.horizontalList}
-          >
-            {renderProduct(
-              'Organic Bananas',
-              '$4.99',
-              require('../assets/main/home/tao.png')
-            )}
-            {renderProduct(
-              'Red Apple',
-              '$4.99',
-              require('../assets/main/home/tao.png')
-            )}
-          </ScrollView>
-
-          {/* Best Selling */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Best Selling</Text>
-            <Text style={styles.seeAll}>See all</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.horizontalList}
-          >
-            {renderProduct(
-              'Tomato',
-              '$4.99',
-              require('../assets/main/home/ot.png')
-            )}
-            {renderProduct(
-              'Ginger',
-              '$4.99',
-              require('../assets/main/home/gung.png')
-            )}
-          </ScrollView>
-
-          {/* Groceries */}
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Groceries</Text>
-            <Text style={styles.seeAll}>See all</Text>
-          </View>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.categoryList}
-          >
-            {renderProduct1(
-              'Dal Masoor',
-              require('../assets/main/home/dal.png')
-            )}
-            {renderProduct1(
-              'Rice Premium',
-              require('../assets/main/home/rice.png')
-            )}
-          </ScrollView>
-
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.horizontalList}
-          >
-            {renderProduct(
-              'Beef Bone',
-              '$4.99',
-              require('../assets/main/home/lon.png')
-            )}
-            {renderProduct(
-              'Broiler Chicken',
-              '$4.99',
-              require('../assets/main/home/ga.png')
-            )}
-          </ScrollView>
-        </ScrollView>
-      )}
-    </View>
-  );
-}
-
-function renderProduct(name, price, imageSource) {
-  return (
-    <View style={styles.productCard}>
-      <Image style={styles.productImage} source={imageSource} />
-      <Text style={styles.productName}>{name}</Text>
-      <Text style={styles.productPrice}>{price}</Text>
-      <View style={styles.c}>
-        <TouchableOpacity style={styles.addButton}>
-        <Text style={styles.addText}>+</Text>
+      {/* Search Bar */}
+            <View style={styles.searchRow}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} style={styles.searchIcon} />
+          <TextInput placeholder="Search" style={styles.searchInput} />
+        </View>
+        <TouchableOpacity style={styles.filterButton}>
+          <Ionicons name="options-outline" size={20} color="#E07415" />
         </TouchableOpacity>
       </View>
-      
-    </View>
-  );
-}
 
-function renderProduct1(name,imageSource) {
-  return (
-    <View style={styles.productCard1}>
-      <Image style={styles.productImage1} source={imageSource} />
-      <Text style={styles.productName1}>{name}</Text>
-    </View>
-  );
-}
+      {/* Special Offers */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Special Offers</Text>
+        <Text style={styles.viewAll}>View all</Text>
+      </View>
+      <Image source={require('../assets/anhbong.png')} style={styles.banner} />
 
-function renderCategory(title) {
-  return (
-    <View style={styles.categoryCard}>
-      <Text style={styles.categoryText}>{title}</Text>
-    </View>
-  );
-}
+      {/* Categories */}
+      <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Loại</Text>
+  <Text style={styles.viewAll}>View all</Text>
+</View>
 
-function renderMenuIcon(iconName, label, active = false) {
-  let iconComponent;
+<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/nike.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Giày Nike</Text>
+  </View>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/adidas.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Giày Adidas</Text>
+  </View>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/puma.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Giày Puma</Text>
+  </View>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/mizuno.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Giày Mizuno</Text>
+  </View>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/balo.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Balo,tất</Text>
+  </View>
+  <View style={styles.categoryItem}>
+    <Image source={require('../assets/phukien.png')} style={styles.categoryImage} />
+    <Text style={styles.categoryLabel}>Phụ kiện</Text>
+  </View>
+</ScrollView>
 
-  switch (label) {
-    case 'Shop':
-      iconComponent = <Feather name="shopping-bag" size={20} color={active ? '#4CAF50' : 'gray'} />;
-      break;
-    case 'Explore':
-      iconComponent = <Feather name="search" size={20} color={active ? '#4CAF50' : 'gray'} />;
-      break;
-    case 'Cart':
-      iconComponent = <Feather name="shopping-cart" size={20} color={active ? '#4CAF50' : 'gray'} />;
-      break;
-    case 'Favourite':
-      iconComponent = <AntDesign name="hearto" size={20} color={active ? '#4CAF50' : 'gray'} />;
-      break;
-    case 'Account':
-      iconComponent = <Feather name="user" size={20} color={active ? '#4CAF50' : 'gray'} />;
-      break;
-    default:
-      iconComponent = <Feather name="home" size={20} color={active ? '#4CAF50' : 'gray'} />;
-  }
+      {/* Trends */}
+      <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Trends & Nổi bật</Text>
+  <Text style={styles.viewAll}>View all</Text>
+</View>
 
-  return (
-    <View style={styles.menuItem}>
-      {iconComponent}
-      <Text style={[styles.menuLabel, active && { color: '#4CAF50' }]}>{label}</Text>
-    </View>
+<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardScroll}>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 11.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Nike Air Zoom Mecurial Superfly 9 Elite hồng</Text>
+    <Text style={styles.cardPrice}>250.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 12.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Nike Air Elite cam</Text>
+    <Text style={styles.cardPrice}>360.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 15.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Mizuno Alpha Pro 2</Text>
+    <Text style={styles.cardPrice}>270.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 16.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Giày sân cỏ nhân tạo X19.3 Go</Text>
+    <Text style={styles.cardPrice}>460.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 17.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Adidas X SpeedPortal.3 xanh</Text>
+    <Text style={styles.cardPrice}>500.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 18.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Adidas X 19.1 TF EG7135 - Cloud White</Text>
+    <Text style={styles.cardPrice}>230.000 VND</Text>
+  </View>
+</ScrollView>
+
+
+      {/* Halloween Theme */}
+      <View style={styles.section}>
+  <Text style={styles.sectionTitle}>Đặc biệt</Text>
+  <Text style={styles.viewAll}>View all</Text>
+</View>
+
+<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardScroll}>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 1.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Adidas Nemeziz 19+ FG</Text>
+    <Text style={styles.cardPrice}>1.050.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 2.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Nike Mercurial Vapor III</Text>
+    <Text style={styles.cardPrice}>2.150.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 3.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Nike Hypervenom Phantom III Elite</Text>
+    <Text style={styles.cardPrice}>4.560.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 4.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Giày Mizuno xanh rêu</Text>
+    <Text style={styles.cardPrice}>2.580.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 5.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Giày đá bóng Veer tím đen</Text>
+    <Text style={styles.cardPrice}>7.000.000 VND</Text>
+  </View>
+  <View style={styles.card}>
+    <Image source={require('../assets/image 6.png')} style={styles.cardImage} />
+    <Text style={styles.cardTitle}>Giày đá bóng MT 170434 nhân tạo</Text>
+    <Text style={styles.cardPrice}>1.940.000 VND</Text>
+  </View>
+</ScrollView>
+
+
+      {/* Upcoming Events */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Sự kiện</Text>
+      </View>
+      <Image source={require('../assets/vietnam.png')} style={styles.banner} />
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 50,
     backgroundColor: '#fff',
+    padding: 12,
+    top: 35,
   },
   header: {
-    alignItems: 'center',
-    paddingHorizontal: 16,
-  },
-  locationText: {
-    marginLeft: 8,
-    fontWeight: '500',
-  },
-  searchBar: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    margin: 16,
+    marginBottom: 10,
+  },
+  logo: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#E07415',
+    left: 170,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    backgroundColor: '#f6f6f6',
+    borderRadius: 10,
+    padding: 10,
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  searchIcon: {
+    marginRight: 10,
+    color: '#888',
   },
   searchInput: {
     flex: 1,
-    height: 40,
   },
-  banner: {
-    width: '90%',
-    height: 140,
-    resizeMode: 'contain',
-    alignSelf: 'center',
-    marginVertical: 10,
-  },
-  sectionHeader: {
+  section: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: 16,
-    marginTop: 16,
+    marginTop: 20,
+    marginBottom: 10,
   },
   sectionTitle: {
-    fontWeight: '600',
-    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#E07415',
   },
-  seeAll: {
-    color: '#4CAF50',
+  viewAll: {
+    color: '#999',
+    fontSize: 12,
   },
-  horizontalList: {
-    paddingLeft: 16,
-    paddingVertical: 10,
+  banner: {
+    width: '100%',
+    height: 120,
+    borderRadius: 10,
+    resizeMode: 'cover',
+    marginBottom: 10,
   },
-  productCard: {
-    width: 200,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 10,
-    marginRight: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    alignItems: '',
-  },
-  productCard1: {
-    width: 180,
-    backgroundColor: '#F8A44C',
-    borderRadius: 12,
-    padding: 10,
-    marginRight: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    alignItems: 'center',
-    display:'flex',
+  categories: {
     flexDirection: 'row',
-
+    marginBottom: 10,
   },
-  productImage: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    left:40
-    
+  categoryItem: {
+    alignItems: 'center',
+    marginRight: 15,
   },
-  productName: {
-    fontWeight: '500',
-    textAlign: 'left',
-    marginTop: 6,
-    
-  },
-  productImage1: {
+  categoryImage: {
     width: 60,
     height: 60,
-    resizeMode: 'contain',
+    borderRadius: 30,
+    backgroundColor: '#f0f0f0',
   },
-  productName1: {
-    fontWeight: '500',
-    textAlign: 'left',
-    marginTop: 6,
-    
-  },
-  productPrice: {
-    fontWeight: 'bold',
-    marginTop: 4,
-  },
-  addButton: {
-    marginTop: 8,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    width: 35,
-    height: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize:30,
-  },
-  categoryList: {
-    paddingLeft: 16,
-    marginTop: 8,
-  },
-  categoryCard: {
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 20,
-    marginRight: 10,
-  },
-  categoryText: {
-    fontWeight: '500',
-  },
-  bottomMenu: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderColor: '#eee',
-    backgroundColor: '#fff',
-  },
-  menuItem: {
-    alignItems: 'center',
-  },
-  menuLabel: {
+  categoryLabel: {
+    marginTop: 5,
     fontSize: 12,
-    color: 'gray',
-    marginTop: 4,
+    color: '#444',
+    textAlign: 'center',
   },
-  image3:{
-    left: '45%',
-    bottom: '0',
-    height:40,
-    resizeMode: "contain",
+  cardScroll: {
+    marginBottom: 10,
   },
-  c:{
-    top:-30,
-    alignItems: 'flex-end',
-  },
-  // -----------------------------
-  container1: { padding: 16, backgroundColor: '#fff', flex: 1,marginTop:30, },
-  title1: { fontSize: 24, fontWeight: 'bold', marginBottom: 40 },
-  card1: {
-    backgroundColor: '#f4f4f4',
-    flex: 1,
-    margin: 8,
-    padding: 12,
+  card: {
+    width: 120,
+    marginRight: 15,
+    backgroundColor: '#fff',
     borderRadius: 10,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#f0f0f0',
   },
-  image1: { width: 150, height: 100, margin: 28,left:-18,resizeMode: "contain", },
-  name1: { fontSize: 14 },
-  price1: { color: 'green', marginTop: 4 },
-  searchInput1: {
-    flex: 1,
-    height: 40,
+  cardImage: {
+    width: '100%',
+    height: 80,
+    borderRadius: 8,
+    backgroundColor: '#eee',
   },
-  a1:{
-    alignItems: 'left',
-    left:0,
-    top:30
-  },
-  addButton1: {
-    marginTop: 8,
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    width: 35,
-    height: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addText1: {
-    color: 'white',
+  cardTitle: {
+    marginTop: 5,
+    fontSize: 12,
     fontWeight: 'bold',
-    fontSize:30,
   },
-  b1:{
-    right:-130,
-    
+  cardPrice: {
+    fontSize: 12,
+    color: '#E07415',
   },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 19,
+  },
+  
+  filterButton: {
+    marginLeft: -40,
+    padding: 10,
+    backgroundColor: '#f6f6f6',
+    marginBottom: 18,
+  },
+  
 });
