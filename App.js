@@ -73,7 +73,7 @@ export default function App() {
   return (
     <CartProvider>
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         {/* <Stack.Screen name="SignIn" component={SignInScreen} />
@@ -82,7 +82,8 @@ export default function App() {
         <Stack.Screen name="Location" component={LocationScreen} /> */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
-        
+        <Stack.Screen name="Explore" component={ExploreScreen} />
+        <Stack.Screen name="ProductDetail" component={ProductDetailScreen} /> 
         {/* Đây là Tab chính sau khi đăng nhập xong */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
       </Stack.Navigator>

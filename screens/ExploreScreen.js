@@ -1,303 +1,195 @@
-
 import React, { useState } from 'react';
-import { View, Text,TextInput, StyleSheet,  Modal, FlatList, TouchableOpacity, Image, ScrollView,} from 'react-native';
-import categories from '../data/categories';
-import { Ionicons, Feather, AntDesign } from '@expo/vector-icons';
-import ProductCard from '../components/ProductCard';
+import { View, Text, TextInput, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { Ionicons, AntDesign, Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import data from '../data/categories.js';
+import FilterModal from './FilterModal';
 
-export default function ExploreScreen() {
-  const [filterVisible, setFilterVisible] = useState(false);
+const ExploreScreen = () => {
+  const [searchText, setSearchText] = useState('');
   const navigation = useNavigation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategories, setSelectedCategories] = useState([]);
-  const [selectedBrands, setSelectedBrands] = useState([]);
+  const [showFilter, setShowFilter] = useState(false);
 
-  const categoryNames = categories.map((c) => c.name);
-  const brandNames = [
-    'Individual Collection',
-    'Cocola',
-    'Ifad',
-    'Kazi Farmas',
-  ];
+  const filteredProducts = data.filter(item =>
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
 
-  const toggleItem = (value, list, setList) => {
-    setList((prev) =>
-      prev.includes(value)
-        ? prev.filter((v) => v !== value)
-        : [...prev, value]
-    );
-  };
-
-  const filteredProducts = ProductCard.filter((prod) => {
-    const matchSearch = prod.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchCategory =
-      selectedCategories.length === 0 ||
-      selectedCategories.includes(prod.category);
-    const matchBrand =
-      selectedBrands.length === 0 ||
-      selectedBrands.includes(prod.brand);
-    return matchSearch && matchCategory && matchBrand;
-  });
-  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Find Products</Text>
-      <View style={styles.searchBar}>
-        <Feather name="search" size={20} color="gray" /><TextInput
-          style={styles.searchInput}
-          placeholder="Search Store"
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-        />
-        <TouchableOpacity onPress={() => setFilterVisible(true)}>
-        <Feather
-          name="filter"
-          size={20}
-          color={selectedCategories.length + selectedBrands.length > 0 ? '#4CAF50' : 'gray'}
-        />
-      </TouchableOpacity>
-        
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity>
+          <Ionicons name="chevron-back-outline" size={24} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.logo}>BEN</Text>
+        <View style={styles.notificationWrapper}>
+          <Ionicons name="notifications-outline" size={20} color="#E07415" />
+        </View>
       </View>
 
-      {searchQuery.length > 0 || selectedCategories.length + selectedBrands.length > 0 ? (
-        filteredProducts.length > 0 ? (
-          <FlatList
-            data={filteredProducts}
-            numColumns={2}
-            keyExtractor={(item) => item.id.toString()}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingTop: 16,
-            }}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                style={styles.card1}
-                onPress={() =>
-                  navigation.navigate('ProductDetail', { product: item })
-                }
-              >
-                <Image source={item.image} style={styles.image1} />
-                <View style={styles.a}>
-                  <Text style={styles.name1}>{item.name}</Text>
-                  <Text style={styles.price1}>
-                    ${item.price.toFixed(2)}
-                  </Text>
-                </View>
-                <View style={styles.b1}>
-                  <TouchableOpacity
-                    style={styles.addButton1}
-                    onPress={() =>
-                      navigation.navigate('ProductDetail', { product: item })
-                    }
-                  >
-                    <Text style={styles.addText1}>+</Text>
-                  </TouchableOpacity>
-                </View>
-              </TouchableOpacity>
-            )}
+      {/* Search Row */}
+      <View style={styles.searchRow}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} style={styles.searchIcon} color="#B5B5B5" />
+          <TextInput
+            placeholder="Search"
+            style={styles.searchInput}
+            value={searchText}
+            onChangeText={setSearchText}
           />
-            ) : (
-                <View style={{ alignItems: 'center', marginTop: 40 }}>
-                  <Text>Không tìm thấy sản phẩm nào</Text>
-                </View>
-              )
-            ) : (
+        </View>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setShowFilter(!showFilter)}
+        >
+          <Ionicons name="options-outline" size={20} color="#E07415" />
+        </TouchableOpacity>
+
+      </View>
+
+      <FilterModal visible={showFilter} onClose={() => setShowFilter(false)} />
+      {/* Product List */}
       <FlatList
-        data={categories}
+        data={filteredProducts}
         numColumns={2}
         keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 16 }}
         renderItem={({ item }) => (
           <TouchableOpacity
             style={styles.card}
-            onPress={() => navigation.navigate('Category', { category: item })}
+            onPress={() => navigation.navigate('ProductDetail', { product: item })}
           >
             <Image source={item.image} style={styles.image} />
-            <Text style={styles.a}>{item.name}</Text>
+            <Text style={styles.rating}>
+              <AntDesign name="star" size={12} color="#F1C40F" /> 4.89
+            </Text>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.price}> VND {item.price}</Text>
+            <TouchableOpacity style={styles.cartButton}>
+              <Text style={styles.cartText}>Add to cart</Text>
+              <Feather name="shopping-cart" size={16} color="white" style={{ marginLeft: 6 }} />
+            </TouchableOpacity>
           </TouchableOpacity>
         )}
       />
-    )}
-    {/* ---- Filter Modal ---- */}
-    <Modal
-        visible={filterVisible}
-        animationType="slide"
-        transparent
-        onRequestClose={() => setFilterVisible(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <View style={styles.modalHeader}>
-              <TouchableOpacity onPress={() => setFilterVisible(false)}>
-                <Ionicons name="close" size={24} />
-              </TouchableOpacity>
-              <Text style={styles.modalTitle}>Filters</Text>
-              <View style={{ width: 24 }} />
-            </View>
-
-            <ScrollView showsVerticalScrollIndicator={false}>
-              <Text style={styles.sectionLabel}>Categories</Text>
-              {categoryNames.map((name) => (
-                <TouchableOpacity
-                  key={name}
-                  style={styles.filterRow}
-                  onPress={() =>
-                    toggleItem(name, selectedCategories, setSelectedCategories)
-                  }
-                >
-                  <Feather
-                    name={
-                      selectedCategories.includes(name)
-                        ? 'check-square'
-                        : 'square'
-                    }
-                    size={20}
-                    color="#4CAF50"
-                  />
-                  <Text style={styles.filterText}>{name}</Text>
-                </TouchableOpacity>
-              ))}
-              <Text style={[styles.sectionLabel, { marginTop: 24 }]}>
-                Brand
-              </Text>
-              {brandNames.map((name) => (
-                <TouchableOpacity
-                  key={name}
-                  style={styles.filterRow}
-                  onPress={() =>
-                    toggleItem(name, selectedBrands, setSelectedBrands)
-                  }
-                >
-                  <Feather
-                    name={
-                      selectedBrands.includes(name)
-                        ? 'check-square'
-                        : 'square'
-                    }
-                    size={20}
-                    color="#4CAF50"
-                  />
-                  <Text style={styles.filterText}>{name}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-            <TouchableOpacity
-              style={styles.applyButton}
-              onPress={() => setFilterVisible(false)}
-            >
-              <Text style={styles.applyText}>Apply Filter</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
-  container: { padding: 16, backgroundColor: '#fff', flex: 1,marginTop:30, },
-  title: { fontSize: 24, fontWeight: 'bold', marginBottom: 16 },
-  card: {
-    backgroundColor: '#93B175B1',
-    alignItems: 'center',
+  container: {
     flex: 1,
-    margin: 8,
-    padding: 16,
-    borderRadius: 12,
-    height:200,
+    backgroundColor: '#FAFAFA',
+    paddingTop: 40,
   },
-  a:{
-    fontSize:20,
-    fontWeight:'bold',
-  },
-  image: { width: 100, height: 60, margin: 28,resizeMode: "contain", },
-  searchInput: {
-    flex: 1,
-    height: 40,
-  },
-  searchBar: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F0F0F0',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    marginBottom: 10,
+  },
+  logo: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  notificationWrapper: {
+    borderWidth: 1,
+    borderColor: '#E07415',
+    borderRadius: 20,
+    padding: 6,
+  },
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 19,
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
     borderRadius: 12,
     paddingHorizontal: 10,
-    margin: 16,
-  },
-  // -----------------------------
-  container1: { padding: 16, backgroundColor: '#fff', flex: 1,marginTop:30, },
-  title1: { fontSize: 24, fontWeight: 'bold', marginBottom: 40 },
-  card1: {
-    backgroundColor: '#f4f4f4',
-    flex: 1,
-    margin: 8,
-    padding: 12,
-    borderRadius: 10,
-  },
-  image1: { width: 150, height: 100, margin: 28,left:-18,resizeMode: "contain", },
-  name1: { fontSize: 14 },
-  price1: { color: 'green', marginTop: 4 },
-  searchInput1: {
-    flex: 1,
-    height: 40,
-  },
-  a1:{
-    alignItems: 'left',
-    left:0,
-    top:30
-  },
-  addButton1: {
-    marginTop: 8,
-    backgroundColor: '#4CAF50',
-    borderRadius: 10,
-    width: 35,
-    height: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addText1: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize:30,
-  },
-  b1:{
-    right:-130,
-    
-  },
-  // Modal
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    height: '100%',
-    backgroundColor: '#fff',
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: 16,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  modalTitle: { fontSize: 30, fontWeight: '600' },
-  sectionLabel: { fontSize: 20, fontWeight: '500', marginVertical: 12 },
-  filterRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingVertical: 8,
+    padding: 40,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    marginRight: 8,
   },
-  filterText: { marginLeft: 12, fontSize: 16 },
-  applyButton: {
-    marginTop: 16,
-    backgroundColor: '#4CAF50',
-    borderRadius: 8,
-    paddingVertical: 12,
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+  },
+  filterButton: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E07415',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 10,
+    margin: 8,
+    flex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
     alignItems: 'center',
   },
-  applyText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  image: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginVertical: 10,
+  },
+  rating: {
+    fontSize: 12,
+    color: '#444',
+    marginTop: 4,
+  },
+  name: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginTop: 6,
+    textAlign: 'center',
+  },
+  price: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#D2691E',
+    marginTop: 4,
+  },
+  cartButton: {
+    flexDirection: 'row',
+    backgroundColor: '#E0813D',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  cartText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
+  },
 });
+
+export default ExploreScreen;

@@ -1,21 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';  // Đảm bảo bạn import useState từ react
 import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
+  const [searchText, setSearchText] = useState('');  // Khai báo state cho searchText
+  
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.logo}>BEN</Text>
-        <Ionicons name="notifications-outline" size={24} color="black" />
+        <Ionicons name="notifications-outline" size={24} color="#E07415" />
       </View>
 
       {/* Search Bar */}
-            <View style={styles.searchRow}>
+      <View style={styles.searchRow}>
         <View style={styles.searchContainer}>
           <Ionicons name="search-outline" size={20} style={styles.searchIcon} />
-          <TextInput placeholder="Search" style={styles.searchInput} />
+          <TextInput
+            placeholder="Search"
+            style={styles.searchInput}
+            value={searchText} // Liên kết giá trị của TextInput với state
+            onChangeText={setSearchText} // Cập nhật state khi người dùng nhập liệu
+          />
         </View>
         <TouchableOpacity style={styles.filterButton}>
           <Ionicons name="options-outline" size={20} color="#E07415" />
@@ -171,16 +178,23 @@ const styles = StyleSheet.create({
     left: 170,
   },
   searchContainer: {
+    flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#f6f6f6',
-    borderRadius: 10,
-    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     alignItems: 'center',
-    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    marginRight: 8,
+
   },
   searchIcon: {
-    marginRight: 10,
-    color: '#888',
+    marginRight: 8,
   },
   searchInput: {
     flex: 1,
@@ -254,16 +268,23 @@ const styles = StyleSheet.create({
     color: '#E07415',
   },
   searchRow: {
-    flexDirection: 'row',
+     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 19,
+    marginHorizontal: 1,
   },
   
   filterButton: {
-    marginLeft: -40,
+    backgroundColor: '#fff',
     padding: 10,
-    backgroundColor: '#f6f6f6',
-    marginBottom: 18,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E07415',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    bottom:1,
   },
   
 });

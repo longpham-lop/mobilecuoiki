@@ -7,8 +7,7 @@ import { View,Image, Text, ImageBackground, TouchableOpacity, StyleSheet } from 
 const OnboardingScreen = ({ navigation }) => {
     const [fontsLoaded] = useFonts({
       RubikGlitch_400Regular,MiltonianTattoo_400Regular,
-    });
-  
+    })
     if (!fontsLoaded) {
       return null;
     }

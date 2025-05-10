@@ -3,12 +3,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
 import { View, Text,TextInput, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-export default function FavoriteScreen() {
+export default function FavoriteScreen({navigation}) {
   const { favoriteItems, removeFromFavorite } = useContext(CartContext);
 
   return (
     <View style={styles.container}>
-          <Text style={styles.title}>Favorite</Text>
+      <View style={styles.header}>
+  <TouchableOpacity onPress={() => navigation.goBack()}>
+    <Ionicons name="chevron-back" size={24} color="#E07415" />
+  </TouchableOpacity>
+  <Text style={styles.headerTitle}>Favorite</Text>
+  <TouchableOpacity onPress={() => navigation.popToTop()}>
+    <Text style={styles.closeText}>✕</Text>
+  </TouchableOpacity>
+</View>
+          
     <FlatList
       data={favoriteItems}
       renderItem={({ item }) => (
@@ -46,6 +55,28 @@ const styles = StyleSheet.create({
       borderBottomColor: '#ccc',
       alignItems: 'center',
     },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingTop: 40,
+      paddingBottom: 10,
+      backgroundColor: '#fff',
+      bottom: 20,
+    },
+
+    headerTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#E07415',
+    },
+
+    closeText: {
+      fontSize: 24,
+      color: '#E07415',
+    },
+
     productImage: {
       width: 70,
       height: 70,
@@ -62,7 +93,7 @@ const styles = StyleSheet.create({
       color: '#555',
     },
     button: {
-      backgroundColor: 'green',
+      backgroundColor: '#E07415',
       padding: 14,
       alignItems: 'center',
       borderRadius: 8,
@@ -73,5 +104,6 @@ const styles = StyleSheet.create({
     counterButton: { fontSize: 24, paddingHorizontal: 20 ,borderColor:'black',borderRadius:20,border: '2px solid black'},
     removeButton:{alignItems:'flex-end',textAlign:'left',fontSize:20,left:280,top:-50,marginBottom:-50},
     c:{alignItems:'flex-end',textAlign:'left',fontSize:20,left:240,top:-23,marginBottom:-50}
+    
   });
   

@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import { useContext } from 'react';
+import React, { useState, useContext } from 'react';
+import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
 
-export default function ProductDetailScreen({ route }) {
+export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
   const [quantity, setQuantity] = useState(1);
   const { addToCart, addToFavorite } = useContext(CartContext);
@@ -15,60 +15,165 @@ export default function ProductDetailScreen({ route }) {
   const handleAddToFavorite = () => {
     addToFavorite(product);
   };
-  
 
   return (
-    <View style={styles.container}>
-      <Image source={product.image} style={styles.image} />
-      <Text style={styles.title}>{product.name}</Text>
-      <TouchableOpacity style={styles.tim} onPress={handleAddToFavorite}>
-        <Text>❤️</Text>
-      </TouchableOpacity>
-      <View style={styles.counter}>
-        <TouchableOpacity onPress={() => setQuantity(q => Math.max(1, q - 1))}>
-          <Text style={styles.counterButton}>-</Text>
+    <ScrollView style={styles.container}>
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <Ionicons name="chevron-back" size={24} color="#E07415" />
         </TouchableOpacity>
-        <Text style={styles.quantity}>{quantity}</Text>
-        <TouchableOpacity onPress={() => setQuantity(q => q + 1)}>
-          <Text style={styles.counterButton}>+</Text>
-        </TouchableOpacity>
+        <Text style={styles.logo}>BEN</Text>
+        <Ionicons name="notifications-outline" size={24} color="#E07415" />
       </View>
-      <Text style={styles.price}>${product.price.toFixed(2)}</Text>
-      
-      <Text style={styles.detail}>Product Detail:</Text>
-      <Text style={styles.detail1}>{product.description}</Text>
-      <Text style={styles.detail}>Nutritons                                                              100g</Text>
-      <Image source ={require('../assets/main/star.png')}  style={styles.image1} />
-      <TouchableOpacity style={styles.button } onPress={handleAddToCart}>
-        <Text style={styles.buttonText}>Add To Basket</Text>
+
+      {/* Product image */}
+      <Image source={product.image} style={styles.image} />
+
+      {/* Favorite Icon */}
+      <TouchableOpacity style={styles.favoriteIcon} onPress={handleAddToFavorite}>
+        <Text style={styles.heart}>♡</Text>
       </TouchableOpacity>
 
-      
-    </View>
+      {/* Product info section */}
+      <View style={styles.infoContainer}>
+        <Text style={styles.productName}>{product.name}</Text>
+
+        {/* Rating */}
+        <Text style={styles.rating}>⭐ 4.89 (41 reviews)</Text>
+
+        {/* Composition */}
+        <Text style={styles.compositionLabel}>Composition:</Text>
+        <Text style={styles.composition}>5 white , 1 blue</Text>
+
+        {/* Quantity selector */}
+        <View style={styles.quantityRow}>
+          <TouchableOpacity onPress={() => setQuantity(q => Math.max(1, q - 1))}>
+            <Text style={styles.quantityButton}>-</Text>
+          </TouchableOpacity>
+          <Text style={styles.quantityText}>{quantity}</Text>
+          <TouchableOpacity onPress={() => setQuantity(q => q + 1)}>
+            <Text style={styles.quantityButton}>+</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Price */}
+        <Text style={styles.price}>{product.price} VND</Text>
+
+        {/* Add to cart button */}
+        <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
+          <Text style={styles.cartButtonText}>Add to cart</Text>
+        </TouchableOpacity>
+
+        {/* You Might Also Like */}
+        <Text style={styles.suggestTitle}>You Might Also Like:</Text>
+        <View style={styles.suggestRow}>
+          <Image source={require('../assets/image 20.png')} style={styles.suggestImage} />
+          <Image source={require('../assets/image 25.png')} style={styles.suggestImage} />
+          <Image source={require('../assets/image 17.png')} style={styles.suggestImage} />
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 20, backgroundColor: '#fff', flex: 1,marginTop:30, },
-  image: { width: '100%', height: 400, resizeMode: 'contain' },
-  title: { fontSize: 22, fontWeight: 'bold', marginVertical: 10 },
-  price: { fontSize: 18, color: 'green',left:350,top:-30 },
-  counter: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 },
-  counterButton: { fontSize: 24, paddingHorizontal: 20 },
-  quantity: { fontSize: 18 },
-  detail: { marginVertical: 0,fontSize:20,fontWeight:'bold' },
-  detail1: { marginBottom:40 },
-  button: {
-    backgroundColor: 'green',
-    padding: 14,
+  container: { flex: 1, backgroundColor: '#fff' },
+  header: {
+    marginTop: 40,
+    paddingHorizontal: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center'
+  },
+  logo: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#E07415',
+    fontFamily: 'serif'
+  },
+  image: {
+    width: '100%',
+    height: 250,
+    resizeMode: 'contain',
+    marginTop: 20
+  },
+  favoriteIcon: {
+    position: 'absolute',
+    right: 20,
+    top: 270
+  },
+  heart: {
+    fontSize: 24,
+    color: '#E07415'
+  },
+  infoContainer: {
+    backgroundColor: '#f7f9f8',
+    margin: 20,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: '#E07415'
+  },
+  productName: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#E07415',
+    marginBottom: 5
+  },
+  rating: {
+    color: '#777',
+    marginBottom: 10
+  },
+  compositionLabel: {
+    fontWeight: 'bold',
+    fontSize: 16
+  },
+  composition: {
+    marginBottom: 20,
+    color: '#444'
+  },
+  quantityRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    borderRadius: 8,
-    marginTop: 'auto',
+    gap: 20,
+    marginBottom: 10
   },
-  buttonText: { color: '#fff', fontSize: 16 },
-  image1:{
-    marginTop:110,
-    left:300
+  quantityButton: {
+    fontSize: 22,
+    paddingHorizontal: 10
   },
-  tim:{left:370,fontSize:80,height:40,top:-30,marginBottom:-30 }
+  quantityText: {
+    fontSize: 18
+  },
+  price: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#E07415',
+    marginBottom: 20
+  },
+  cartButton: {
+    backgroundColor: '#E07415',
+    padding: 14,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  cartButtonText: {
+    color: '#fff',
+    fontSize: 16
+  },
+  suggestTitle: {
+    fontSize: 16,
+    marginBottom: 10
+  },
+  suggestRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around'
+  },
+  suggestImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 10
+  }
 });
