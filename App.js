@@ -73,7 +73,7 @@ export default function App() {
   return (
     <CartProvider>
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Login">
+      <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         {/* <Stack.Screen name="SignIn" component={SignInScreen} />
