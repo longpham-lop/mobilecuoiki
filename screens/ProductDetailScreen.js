@@ -2,6 +2,7 @@ import React, { useState, useContext } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
+import { API_URL } from '@env';
 
 export default function ProductDetailScreen({ route, navigation }) {
   const { product } = route.params;
@@ -16,19 +17,29 @@ export default function ProductDetailScreen({ route, navigation }) {
     addToFavorite(product);
   };
 
+  const getImageUrl = (filename) => {
+    if (!filename) return null;
+    if (filename.startsWith('http')) return filename;
+    return `${API_URL}/shopbongda/api/upload/${filename}`;
+  };
+
+  const discountedPrice = product.giamGia > 0
+    ? product.gia * (1 - product.giamGia / 100)
+    : product.gia;
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()}>
-        <Ionicons name="chevron-back" size={24} color="#E07415" />
+          <Ionicons name="chevron-back" size={24} color="#E07415" />
         </TouchableOpacity>
         <Text style={styles.logo}>BEN</Text>
         <Ionicons name="notifications-outline" size={24} color="#E07415" />
       </View>
 
       {/* Product image */}
-      <Image source={product.image} style={styles.image} />
+      <Image source={{ uri: getImageUrl(product.hinhAnh) }} style={styles.image} />
 
       {/* Favorite Icon */}
       <TouchableOpacity style={styles.favoriteIcon} onPress={handleAddToFavorite}>
@@ -37,14 +48,14 @@ export default function ProductDetailScreen({ route, navigation }) {
 
       {/* Product info section */}
       <View style={styles.infoContainer}>
-        <Text style={styles.productName}>{product.name}</Text>
+        <Text style={styles.productName}>{product.tenSanPham}</Text>
 
         {/* Rating */}
         <Text style={styles.rating}>⭐ 4.89 (41 reviews)</Text>
 
-        {/* Composition */}
-        <Text style={styles.compositionLabel}>Composition:</Text>
-        <Text style={styles.composition}>5 white , 1 blue</Text>
+        {/* Composition - Giả định có trường này, nếu không thì bỏ */}
+        <Text style={styles.compositionLabel}>Mô tả:</Text>
+        <Text style={styles.composition}>{product.moTa || 'Updating...'}</Text>
 
         {/* Quantity selector */}
         <View style={styles.quantityRow}>
@@ -58,7 +69,18 @@ export default function ProductDetailScreen({ route, navigation }) {
         </View>
 
         {/* Price */}
-        <Text style={styles.price}>{product.price} VND</Text>
+        {product.giamGia > 0 ? (
+          <>
+            <Text style={{ textDecorationLine: 'line-through', color: 'gray' }}>
+              {product.gia.toLocaleString()} VND
+            </Text>
+            <Text style={styles.price}>
+              {discountedPrice.toLocaleString()} VND
+            </Text>
+          </>
+        ) : (
+          <Text style={styles.price}>{product.gia.toLocaleString()} VND</Text>
+        )}
 
         {/* Add to cart button */}
         <TouchableOpacity style={styles.cartButton} onPress={handleAddToCart}>
@@ -68,9 +90,9 @@ export default function ProductDetailScreen({ route, navigation }) {
         {/* You Might Also Like */}
         <Text style={styles.suggestTitle}>You Might Also Like:</Text>
         <View style={styles.suggestRow}>
-          <Image source={require('../assets/image 20.png')} style={styles.suggestImage} />
-          <Image source={require('../assets/image 25.png')} style={styles.suggestImage} />
-          <Image source={require('../assets/image 17.png')} style={styles.suggestImage} />
+          <Image source={{ uri: getImageUrl(product.hinhAnh) }} style={styles.suggestImage} />
+          <Image source={{ uri: getImageUrl(product.hinhAnh) }} style={styles.suggestImage} />
+          <Image source={{ uri: getImageUrl(product.hinhAnh) }} style={styles.suggestImage} />
         </View>
       </View>
     </ScrollView>

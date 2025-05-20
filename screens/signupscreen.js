@@ -14,37 +14,40 @@ export default function SignUpScreen({ navigation }) {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   const handleSignup = async () => {
-    if (!email || !password || !firstName || !lastName || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields.');
-      return;
-    }
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
-    }
+  if (!email || !password || !firstName || !lastName || !confirmPassword) {
+    Alert.alert('Error', 'Please fill in all fields.');
+    return;
+  }
 
-    try {
-      const response = await fetch(`${API_URL}/shopbongda/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, firstName, lastName }),
-      });
+  if (password !== confirmPassword) {
+    Alert.alert('Error', 'Passwords do not match.');
+    return;
+  }
 
-      if (response.ok) {
-        const data = await response.json();
-        await AsyncStorage.setItem('info', JSON.stringify(data.user));
-        await AsyncStorage.setItem('token', data.jwt);
-        navigation.navigate('MainTabs');
-      } else {
-        const error = await response.text();
-        Alert.alert('Signup Failed', error);
-      }
-    } catch (error) {
-      console.error('Signup error:', error);
-      Alert.alert('Error', 'Something went wrong. Please try again.');
+  try {
+    const formBody = `username=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}&fullName=${encodeURIComponent(firstName + ' ' + lastName)}&email=${encodeURIComponent(email)}`;
+
+    const response = await fetch(`${API_URL}/shopbongda/auth/register`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: formBody,
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      await AsyncStorage.setItem('info', JSON.stringify(data.user));
+      await AsyncStorage.setItem('token', data.jwt);
+      navigation.navigate('MainTabs');
+    } else {
+      const error = await response.text();
+      Alert.alert('Signup Failed', error);
     }
+  } catch (error) {
+    console.error('Signup error:', error);
+    Alert.alert('Error', 'Something went wrong. Please try again.');
+  }
   };
 
   return (

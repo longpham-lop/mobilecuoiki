@@ -1,10 +1,36 @@
-import React, { useState } from 'react';  // Đảm bảo bạn import useState từ react
-import { View, Text, StyleSheet, TextInput, ScrollView, Image, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useState, useContext } from 'react'; // Đảm bảo bạn import useState từ react
+import { View, Text, StyleSheet, TextInput, ScrollView,FlatList, Image, TouchableOpacity } from 'react-native';
+import { Ionicons, AntDesign, Feather } from '@expo/vector-icons';
+import { ProductContext } from '../contexts/ProductContext';
+import {API_URL} from "@env"
+import { useNavigation } from '@react-navigation/native';
+import FilterModal from './FilterModal';
 
 export default function HomeScreen() {
   const [searchText, setSearchText] = useState('');  // Khai báo state cho searchText
+    const navigation = useNavigation();
+    const { products, loading } = useContext(ProductContext);
+    const [showFilter, setShowFilter] = useState(false);
   
+    const getImageUrl = (filename) => {
+      if (!filename) return null;
+      if (filename.startsWith('http')) return filename;
+  
+      return `${API_URL}/shopbongda/api/upload/${filename}`;
+    };
+  
+    const filteredProducts = products.filter(item =>
+      item.tenSanPham?.toLowerCase().includes(searchText.toLowerCase())
+    );
+
+    const shuffleArray = (array) => {
+      return array.sort(() => Math.random() - 0.5);
+    };
+
+    const randomProducts = shuffleArray(filteredProducts).slice(0, 4);
+    const halloweenProducts = shuffleArray(filteredProducts).slice(4, 8);
+
+
   return (
     <ScrollView style={styles.container}>
       {/* Header */}
@@ -20,8 +46,8 @@ export default function HomeScreen() {
           <TextInput
             placeholder="Search"
             style={styles.searchInput}
-            value={searchText} // Liên kết giá trị của TextInput với state
-            onChangeText={setSearchText} // Cập nhật state khi người dùng nhập liệu
+            value={searchText} 
+            onChangeText={setSearchText} 
           />
         </View>
         <TouchableOpacity style={styles.filterButton}>
@@ -38,115 +64,118 @@ export default function HomeScreen() {
 
       {/* Categories */}
       <View style={styles.section}>
-  <Text style={styles.sectionTitle}>Loại</Text>
-  <Text style={styles.viewAll}>View all</Text>
-</View>
+        <Text style={styles.sectionTitle}>Loại</Text>
+        <Text style={styles.viewAll}>View all</Text>
+      </View>
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/nike.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Giày Nike</Text>
-  </View>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/adidas.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Giày Adidas</Text>
-  </View>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/puma.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Giày Puma</Text>
-  </View>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/mizuno.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Giày Mizuno</Text>
-  </View>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/balo.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Balo,tất</Text>
-  </View>
-  <View style={styles.categoryItem}>
-    <Image source={require('../assets/phukien.png')} style={styles.categoryImage} />
-    <Text style={styles.categoryLabel}>Phụ kiện</Text>
-  </View>
-</ScrollView>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categories}>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/nike.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Giày Nike</Text>
+        </View>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/adidas.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Giày Adidas</Text>
+        </View>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/puma.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Giày Puma</Text>
+        </View>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/mizuno.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Giày Mizuno</Text>
+        </View>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/balo.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Balo,tất</Text>
+        </View>
+        <View style={styles.categoryItem}>
+          <Image source={require('../assets/phukien.png')} style={styles.categoryImage} />
+          <Text style={styles.categoryLabel}>Phụ kiện</Text>
+        </View>
+      </ScrollView>
 
       {/* Trends */}
+      <FilterModal visible={showFilter} onClose={() => setShowFilter(false)} />
       <View style={styles.section}>
-  <Text style={styles.sectionTitle}>Trends & Nổi bật</Text>
-  <Text style={styles.viewAll}>View all</Text>
-</View>
+        <Text style={styles.sectionTitle}>Trends & Nổi bật</Text>
+        <Text style={styles.viewAll}>View all</Text>
+      </View>
+      
+      <FlatList
+        data={randomProducts}
+        horizontal={true}
+        keyExtractor={(item) => item.maSanPham}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 16 }}
+        renderItem={({ item }) => (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardScroll}>
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('ProductDetail', { product: item })}
+          >
+            <Image source={{ uri: getImageUrl(item.hinhAnh) }} style={styles.cardImage} />
+            <Text style={styles.rating}>
+              <AntDesign name="star" size={12} color="#F1C40F" /> 4.89
+            </Text>
+            <Text style={styles.cardTitle}>{item.tenSanPham}</Text>
+            {item.giamGia > 0 ? (
+              <View>
+                <Text style={{ textDecorationLine: 'line-through', color: 'gray' }}>
+                  {item.gia.toLocaleString()}đ
+                </Text>
+                <Text style={{ color: 'red', fontWeight: 'bold' }}>
+                  {(item.gia * (1 - item.giamGia / 100)).toLocaleString()}đ
+                </Text>
+              </View>
+            ) : (
+              <Text style={{ fontWeight: 'bold' }}>{item.gia.toLocaleString()}đ</Text>
+            )}
+          </TouchableOpacity></ScrollView>
+        )}
+      />
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardScroll}>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 11.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Nike Air Zoom Mecurial Superfly 9 Elite hồng</Text>
-    <Text style={styles.cardPrice}>250.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 12.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Nike Air Elite cam</Text>
-    <Text style={styles.cardPrice}>360.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 15.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Mizuno Alpha Pro 2</Text>
-    <Text style={styles.cardPrice}>270.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 16.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Giày sân cỏ nhân tạo X19.3 Go</Text>
-    <Text style={styles.cardPrice}>460.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 17.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Adidas X SpeedPortal.3 xanh</Text>
-    <Text style={styles.cardPrice}>500.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 18.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Adidas X 19.1 TF EG7135 - Cloud White</Text>
-    <Text style={styles.cardPrice}>230.000 VND</Text>
-  </View>
-</ScrollView>
+      
 
 
       {/* Halloween Theme */}
       <View style={styles.section}>
-  <Text style={styles.sectionTitle}>Đặc biệt</Text>
-  <Text style={styles.viewAll}>View all</Text>
-</View>
+        <Text style={styles.sectionTitle}>Đặc biệt</Text>
+        <Text style={styles.viewAll}>View all</Text>
+      </View>
 
-<ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.cardScroll}>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 1.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Adidas Nemeziz 19+ FG</Text>
-    <Text style={styles.cardPrice}>1.050.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 2.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Nike Mercurial Vapor III</Text>
-    <Text style={styles.cardPrice}>2.150.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 3.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Nike Hypervenom Phantom III Elite</Text>
-    <Text style={styles.cardPrice}>4.560.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 4.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Giày Mizuno xanh rêu</Text>
-    <Text style={styles.cardPrice}>2.580.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 5.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Giày đá bóng Veer tím đen</Text>
-    <Text style={styles.cardPrice}>7.000.000 VND</Text>
-  </View>
-  <View style={styles.card}>
-    <Image source={require('../assets/image 6.png')} style={styles.cardImage} />
-    <Text style={styles.cardTitle}>Giày đá bóng MT 170434 nhân tạo</Text>
-    <Text style={styles.cardPrice}>1.940.000 VND</Text>
-  </View>
-</ScrollView>
+      <FlatList
+        data={halloweenProducts}
+        horizontal={true}
+        keyExtractor={(item) => item.maSanPham}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 16 }}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('ProductDetail', { product: item })}
+          >
+            <Image source={{ uri: getImageUrl(item.hinhAnh) }} style={styles.cardImage} />
+            <Text style={styles.rating}>
+              <AntDesign name="star" size={12} color="#F1C40F" /> 4.89
+            </Text>
+            <Text style={styles.cardTitle}>{item.tenSanPham}</Text>
+            {item.giamGia > 0 ? (
+              <View>
+                <Text style={{ textDecorationLine: 'line-through', color: 'gray' }}>
+                  {item.gia.toLocaleString()}đ
+                </Text>
+                <Text style={{ color: 'red', fontWeight: 'bold' }}>
+                  {(item.gia * (1 - item.giamGia / 100)).toLocaleString()}đ
+                </Text>
+              </View>
+            ) : (
+              <Text style={{ fontWeight: 'bold' }}>{item.gia.toLocaleString()}đ</Text>
+            )}
+          </TouchableOpacity>
+        )}
+      />
+
 
 
       {/* Upcoming Events */}

@@ -1,18 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Ionicons, AntDesign, Feather } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import data from '../data/categories.js';
 import FilterModal from './FilterModal';
+import { ProductContext } from '../contexts/ProductContext';
+import {API_URL} from "@env"
+import { CartContext } from './CartContext';
 
-const ExploreScreen = () => {
+const ExploreScreen = (route) => {
   const [searchText, setSearchText] = useState('');
   const navigation = useNavigation();
   const [showFilter, setShowFilter] = useState(false);
+  // const { product } = route.params;
+  const { products, loading } = useContext(ProductContext);
+  const { addToCart, } = useContext(CartContext);
 
-  const filteredProducts = data.filter(item =>
-    item.name.toLowerCase().includes(searchText.toLowerCase())
+  const getImageUrl = (filename) => {
+    if (!filename) return null;
+    if (filename.startsWith('http')) return filename;
+
+    return `${API_URL}/shopbongda/api/upload/${filename}`;
+  };
+
+  const filteredProducts = products.filter(item =>
+    item.tenSanPham?.toLowerCase().includes(searchText.toLowerCase())
   );
+
+  if (loading) {
+  return (
+    <View style={styles.container}>
+      <Text style={{ textAlign: 'center', marginTop: 20 }}>Loading...</Text>
+    </View>
+  );
+  }
 
   return (
     <View style={styles.container}>
@@ -52,7 +72,7 @@ const ExploreScreen = () => {
       <FlatList
         data={filteredProducts}
         numColumns={2}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.maSanPham}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingHorizontal: 8, paddingTop: 16 }}
         renderItem={({ item }) => (
@@ -60,13 +80,24 @@ const ExploreScreen = () => {
             style={styles.card}
             onPress={() => navigation.navigate('ProductDetail', { product: item })}
           >
-            <Image source={item.image} style={styles.image} />
+            <Image source={{ uri: getImageUrl(item.hinhAnh) }} style={styles.image} />
             <Text style={styles.rating}>
               <AntDesign name="star" size={12} color="#F1C40F" /> 4.89
             </Text>
-            <Text style={styles.name}>{item.name}</Text>
-            <Text style={styles.price}> VND {item.price}</Text>
-            <TouchableOpacity style={styles.cartButton}>
+            <Text style={styles.name}>{item.tenSanPham}</Text>
+            {item.giamGia > 0 ? (
+              <View>
+                <Text style={{ textDecorationLine: 'line-through', color: 'gray' }}>
+                  {item.gia.toLocaleString()}đ
+                </Text>
+                <Text style={{ color: 'red', fontWeight: 'bold' }}>
+                  {(item.gia * (1 - item.giamGia / 100)).toLocaleString()}đ
+                </Text>
+              </View>
+            ) : (
+              <Text style={{ fontWeight: 'bold' }}>{item.gia.toLocaleString()}đ</Text>
+            )}
+            <TouchableOpacity style={styles.cartButton} onPress={() => addToCart(item, 1)}>
               <Text style={styles.cartText}>Add to cart</Text>
               <Feather name="shopping-cart" size={16} color="white" style={{ marginLeft: 6 }} />
             </TouchableOpacity>

@@ -6,10 +6,10 @@ import { useRoute, getFocusedRouteNameFromRoute } from '@react-navigation/native
 import  Icon  from "react-native-vector-icons/Ionicons";
 import SplashScreen from "./screens/SplashScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
-import NumberScreen from "./screens/NumberScreen";
-import VerificationScreen from "./screens/VerificationScreen";
+// import NumberScreen from "./screens/NumberScreen";
+// import VerificationScreen from "./screens/VerificationScreen";
 import HomeScreen from "./screens/HomeScreen";
-import LocationScreen from "./screens/locationscreen"
+// import LocationScreen from "./screens/locationscreen"
 import LoginScreen from "./screens/loginscreen"
 import SignupScreen from "./screens/signupscreen"
 import CartScreen from "./screens/CartScreen";
@@ -19,6 +19,7 @@ import ProductDetailScreen from "./screens/ProductDetailScreen";
 import CategoryScreen from "./screens/CategoryScreen";
 import FavoriteScreen from "./screens/FavoriteScreen";
 import { CartProvider } from './screens/CartContext';
+import { ProductProvider } from './contexts/ProductContext';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -71,6 +72,7 @@ function MainTabs() {
 
 export default function App() {
   return (
+    <ProductProvider>
     <CartProvider>
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
@@ -87,6 +89,6 @@ export default function App() {
         {/* Đây là Tab chính sau khi đăng nhập xong */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
       </Stack.Navigator>
-    </NavigationContainer></CartProvider>
+    </NavigationContainer></CartProvider></ProductProvider>
   );
 }

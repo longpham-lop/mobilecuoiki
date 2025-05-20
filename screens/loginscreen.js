@@ -6,6 +6,7 @@ import {API_URL} from "@env"
 
 
 export default function LoginScreen({ navigation }) {
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -31,7 +32,7 @@ export default function LoginScreen({ navigation }) {
         console.log('User Info:', data.user);
 
         // Lưu token nếu cần:
-        await AsyncStorage.setItem('info', data.user);
+        await AsyncStorage.setItem('info', JSON.stringify(data.user));
         await AsyncStorage.setItem('token', data.jwt);
 
         navigation.navigate('MainTabs', { user: data.user });
@@ -170,7 +171,7 @@ const styles = StyleSheet.create({
   button1: {
     borderWidth: 2 ,
     color:'#E07415BF' ,
-    top: -2020,
+    top: -20,
     borderColor: '#E07415BF' ,
     paddingVertical: 14,
     borderRadius: 8,

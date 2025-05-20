@@ -1,48 +1,87 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
-import { View, Text,TextInput, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+} from 'react-native';
+import { API_URL } from '@env';
 
-export default function FavoriteScreen({navigation}) {
+export default function FavoriteScreen({ navigation }) {
   const { favoriteItems, removeFromFavorite } = useContext(CartContext);
+
+  const getImageUrl = (filename) => {
+    if (!filename) return null;
+    if (filename.startsWith('http')) return filename;
+    return `${API_URL}/shopbongda/api/upload/${filename}`;
+  };
 
   return (
     <View style={styles.container}>
+      {/* Header */}
       <View style={styles.header}>
-  <TouchableOpacity onPress={() => navigation.goBack()}>
-    <Ionicons name="chevron-back" size={24} color="#E07415" />
-  </TouchableOpacity>
-  <Text style={styles.headerTitle}>Favorite</Text>
-  <TouchableOpacity onPress={() => navigation.popToTop()}>
-    <Text style={styles.closeText}>✕</Text>
-  </TouchableOpacity>
-</View>
-          
-    <FlatList
-      data={favoriteItems}
-      renderItem={({ item }) => (
-              <View style={styles.cartItem}>
-                <Image 
-                  source={item.image} 
-                  style={styles.productImage} 
-                />
-                <View >
-                <Text style={styles.productName}>{item.name}</Text>
-                <Text style={styles.productQuantity}>Description: {item.description}</Text>
-                <TouchableOpacity onPress={() => removeFromFavorite(item.product.id)}>
-                  <Text style={styles.removeButton} > <Ionicons name="chevron-forward-outline"></Ionicons> </Text>
-                  <Text style={styles.c}> {item.price}</Text><Text>$</Text>
-                </TouchableOpacity>
-                </View>
-              </View>
-            )}
-      keyExtractor={item => item.id.toString()}
-    />
-    <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Add to Cart</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color="#E07415" />
         </TouchableOpacity>
-        </View>
+        <Text style={styles.headerTitle}>Favorite</Text>
+        <TouchableOpacity onPress={() => navigation.popToTop()}>
+          <Text style={styles.closeText}>✕</Text>
+        </TouchableOpacity>
+      </View>
 
+      {/* Favorite List */}
+      <FlatList
+        data={favoriteItems}
+        keyExtractor={(item, index) =>
+          item.id?.toString() || index.toString()
+        }
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            style={styles.itemContainer}
+            onPress={() => navigation.navigate('ProductDetailScreen', { product: item })}
+          >
+            <Image
+              source={{ uri: getImageUrl(item.hinhAnh) }}
+              style={styles.productImage}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.productName}>{item.tenSanPham}</Text>
+              <Text style={styles.description}>
+                {item.moTa || 'Updating...'}
+              </Text>
+              <View style={styles.priceRow}>
+                {item.giamGia > 0 ? (
+                  <>
+                    <Text style={styles.oldPrice}>
+                      {item.gia.toLocaleString()} VND
+                    </Text>
+                    <Text style={styles.newPrice}>
+                      {(item.gia * (1 - item.giamGia / 100)).toLocaleString()} VND
+                    </Text>
+                  </>
+                ) : (
+                  <Text style={styles.newPrice}>
+                    {item.gia.toLocaleString()} VND
+                  </Text>
+                )}
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => removeFromFavorite(item.maSanPham)}>
+              <Ionicons name="trash-outline" size={22} color="#E07415" />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        )}
+        ListEmptyComponent={
+          <Text style={{ textAlign: 'center', marginTop: 40 }}>
+            No favorite items yet.
+          </Text>
+        }
+      />
+    </View>
   );
 }
 const styles = StyleSheet.create({

@@ -1,13 +1,14 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
+import { API_URL } from '@env';
 
 export default function CartScreen({ navigation }) {
-  const { cartItems, removeFromCart } = useContext(CartContext);
+  const { cartItems, removeFromCart, addToCart } = useContext(CartContext);
   const [quantities, setQuantities] = useState(
     cartItems.reduce((acc, item) => {
-      acc[item.product.id] = 1;
+      acc[item.product.id] = item.quantity || 1;
       return acc;
     }, {})
   );
@@ -19,9 +20,22 @@ export default function CartScreen({ navigation }) {
     }));
   };
 
+  const getImageUrl = (filename) => {
+    if (!filename) return null;
+    if (filename.startsWith('http')) return filename;
+    return `${API_URL}/shopbongda/api/upload/${filename}`;
+  };
+
+  const getDiscountedPrice = (product) => {
+    return product.giamGia > 0
+      ? product.gia * (1 - product.giamGia / 100)
+      : product.gia;
+  };
+
   const total = cartItems.reduce((sum, item) => {
     const qty = quantities[item.product.id] || 1;
-    return sum + qty * item.product.price;
+    const price = getDiscountedPrice(item.product);
+    return sum + qty * price;
   }, 0);
 
   return (
@@ -38,71 +52,73 @@ export default function CartScreen({ navigation }) {
       {/* Cart Items */}
       <FlatList
         data={cartItems}
-        keyExtractor={item => item.product.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.cartItem}>
-            <TouchableOpacity style={styles.heartIcon}>
-              <Ionicons name="heart-outline" size={18} color="#E07415" />
-            </TouchableOpacity>
+        keyExtractor={item => item.product.maSanPham}
+        renderItem={({ item }) => {
+          const product = item.product;
+          const quantity = quantities[product.id];
+          const price = getDiscountedPrice(product);
 
-            <Image source={item.product.image} style={styles.productImage} />
+          return (
+            <View style={styles.cartItem}>
+              <Image source={{ uri: getImageUrl(product.hinhAnh) }} style={styles.productImage} />
 
-            <View style={{ flex: 1 }}>
-              <Text style={styles.productName}>{item.product.name}</Text>
-              <Text style={styles.status}>Available in stock</Text>
+              <View style={{ flex: 1, marginLeft: 10 }}>
+                <Text style={styles.productName}>{product.tenSanPham}</Text>
+                <Text style={styles.status}>Tình trạng: Còn hàng</Text>
 
-              <TouchableOpacity style={styles.cartButton}>
-                <Text style={styles.cartButtonText}>Add to cart</Text>
-                <Ionicons name="cart-outline" size={16} color="#fff" />
-              </TouchableOpacity>
+                {/* Price */}
+                {product.giamGia > 0 ? (
+                  <>
+                    <Text style={{ textDecorationLine: 'line-through', color: 'gray' }}>
+                      {product.gia.toLocaleString()} VND
+                    </Text>
+                    <Text style={styles.price}>{price.toLocaleString()} VND</Text>
+                  </>
+                ) : (
+                  <Text style={styles.price}>{price.toLocaleString()} VND</Text>
+                )}
 
-              <View style={styles.quantityControl}>
-                <TouchableOpacity onPress={() => updateQuantity(item.product.id, -1)}>
-                  <Ionicons name="remove-circle-outline" size={22} color="#E07415" />
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{quantities[item.product.id]}</Text>
-                <TouchableOpacity onPress={() => updateQuantity(item.product.id, 1)}>
-                  <Ionicons name="add-circle-outline" size={22} color="#E07415" />
-                </TouchableOpacity>
+                {/* Quantity controls */}
+                <View style={styles.quantityControl}>
+                  <TouchableOpacity onPress={() => updateQuantity(product.quantity, -1)}>
+                    <Ionicons name="remove-circle-outline" size={22} color="#E07415" />
+                  </TouchableOpacity>
+                  <Text style={styles.quantityText}>{quantity}</Text>
+                  <TouchableOpacity onPress={() => updateQuantity(product.quantity, 1)}>
+                    <Ionicons name="add-circle-outline" size={22} color="#E07415" />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
 
-            <TouchableOpacity onPress={() => removeFromCart(item.product.id)}>
-              <Ionicons name="trash-outline" size={22} color="#E07415" />
-            </TouchableOpacity>
-          </View>
-        )}
+              <TouchableOpacity onPress={() => removeFromCart(product.maSanPham)}>
+                <Ionicons name="trash-outline" size={22} color="#E07415" />
+              </TouchableOpacity>
+            </View>
+          );
+        }}
       />
 
-      {/* Price Details */}
+      {/* Price Summary */}
       <View style={styles.priceDetails}>
-        <Text style={styles.sectionTitle}>Price details</Text>
-        {cartItems.map(item => (
-          <View key={item.product.id} style={styles.priceRow}>
-            <Text>{item.product.name} × {quantities[item.product.id]}</Text>
-            <Text>{item.product.price * quantities[item.product.id]} $</Text>
-          </View>
-        ))}
+        <Text style={styles.sectionTitle}>Tổng đơn hàng</Text>
         <View style={styles.priceRow}>
-          <Text style={{ fontWeight: 'bold' }}>Subtotal</Text>
-          <Text>{total} $</Text>
+          <Text style={{ fontWeight: 'bold' }}>Tạm tính</Text>
+          <Text>{total.toLocaleString()} VND</Text>
         </View>
         <View style={styles.priceRow}>
-          <Text>Delivery</Text>
-          <Text style={{ color: 'green' }}>Free</Text>
+          <Text>Phí giao hàng</Text>
+          <Text style={{ color: 'green' }}>Miễn phí</Text>
         </View>
         <View style={styles.priceRow}>
-          <Text style={{ fontWeight: 'bold' }}>Total</Text>
-          <Text style={{ fontWeight: 'bold' }}>{total} $</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Tổng cộng</Text>
+          <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{total.toLocaleString()} VND</Text>
         </View>
-
-        <TouchableOpacity style={styles.checkoutButton}>
-          <Text style={styles.checkoutButtonText}>Checkout</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );
 }
+
+
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   header: {
