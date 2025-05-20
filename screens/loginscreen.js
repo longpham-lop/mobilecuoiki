@@ -28,6 +28,7 @@ export default function LoginScreen({ navigation }) {
 
       if (response.ok) {
         const data = await response.json();
+        await AsyncStorage.setItem("userId", response.data.userId);
         console.log('JWT Token:', data.jwt);
         console.log('User Info:', data.user);
 
