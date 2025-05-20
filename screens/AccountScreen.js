@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
 
-export default function AccountScreen() {
+export default function AccountScreen({ navigation }) {
   return (
     <ImageBackground
       source={require("../assets/splash-icon.png")}
@@ -31,10 +31,10 @@ export default function AccountScreen() {
 
         {/* Menu Options */}
         <View style={styles.menuBox}>
-          <TouchableOpacity style={styles.menuButton}><Text style={styles.menuText}>My orders</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton}><Text style={styles.menuText}>Settings</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton}><Text style={styles.menuText}>Sign out</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton}><Text style={styles.menuText}>About us</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Order')}><Text style={styles.menuText}>My orders</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>Settings</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>Sign out</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>About us</Text></TouchableOpacity>
         </View>
       </View>
     </ImageBackground>

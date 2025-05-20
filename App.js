@@ -7,9 +7,8 @@ import  Icon  from "react-native-vector-icons/Ionicons";
 import SplashScreen from "./screens/SplashScreen";
 import OnboardingScreen from "./screens/OnboardingScreen";
 // import NumberScreen from "./screens/NumberScreen";
-// import VerificationScreen from "./screens/VerificationScreen";
+import Order from "./screens/Order";
 import HomeScreen from "./screens/HomeScreen";
-// import LocationScreen from "./screens/locationscreen"
 import LoginScreen from "./screens/loginscreen"
 import SignupScreen from "./screens/signupscreen"
 import CartScreen from "./screens/CartScreen";
@@ -78,10 +77,8 @@ export default function App() {
       <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Splash">
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        {/* <Stack.Screen name="SignIn" component={SignInScreen} />
-        <Stack.Screen name="NumberScreen" component={NumberScreen} />
-        <Stack.Screen name="VerificationScreen" component={VerificationScreen} />
-        <Stack.Screen name="Location" component={LocationScreen} /> */}
+        {/* <Stack.Screen name="NumberScreen" component={NumberScreen} /> */}
+        <Stack.Screen name="Order" component={Order} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
         <Stack.Screen name="Explore" component={ExploreScreen} />
