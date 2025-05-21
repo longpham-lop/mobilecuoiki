@@ -19,6 +19,12 @@ import CategoryScreen from "./screens/CategoryScreen";
 import FavoriteScreen from "./screens/FavoriteScreen";
 import { CartProvider } from './screens/CartContext';
 import { ProductProvider } from './contexts/ProductContext';
+import { HoaDonProvider } from "./contexts/HoaDonContext";
+import TrackOrderScreen from "./screens/TrackOrderScreen";
+import CheckoutScreen from "./screens/CheckoutScreen";
+import PaymentScreen from "./screens/PaymentScreen";
+import ConfirmationScreen from "./screens/ConfirmationScreen";
+import ConfirmationPage from "./screens/tks";
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -29,6 +35,27 @@ function ExploreStack() {
       <Stack.Screen name="ExploreHome" component={ExploreScreen} />
       <Stack.Screen name="Category" component={CategoryScreen} />
       <Stack.Screen name="ProductDetail" component={ProductDetailScreen} />
+      <Stack.Screen name="Order" component={Order} />
+    </Stack.Navigator>
+  );
+}
+function CartStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }} >
+      <Stack.Screen name="Ca" component={CartScreen} />
+      <Stack.Screen name="Check" component={CheckoutScreen} />
+      <Stack.Screen name="PaymentScreen" component={PaymentScreen} />
+      <Stack.Screen name="ConfirmationScreen" component={ConfirmationScreen} />
+      <Stack.Screen name="ConfirmationPage" component={ConfirmationPage} />
+    </Stack.Navigator>
+  );
+}
+function AccStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }} >
+      <Stack.Screen name="Acc" component={AccountScreen} />
+      <Stack.Screen name="Order" component={Order} />
+      <Stack.Screen name="Ordert" component={TrackOrderScreen} />
     </Stack.Navigator>
   );
 }
@@ -37,7 +64,7 @@ function MainTabs() {
   const route = useRoute();
   const routeName = getFocusedRouteNameFromRoute(route) ?? 'ExploreHome';
 
-  const hiddenRoutes = ['Category', 'ProductDetail'];
+  const hiddenRoutes = ['Category', 'ProductDetail','Order'];
   const isTabBarHidden = hiddenRoutes.includes(routeName);
 
   return (
@@ -62,15 +89,17 @@ function MainTabs() {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Shop" component={ExploreStack} />
-      <Tab.Screen name="Cart" component={CartScreen} />
+      <Tab.Screen name="Cart" component={CartStack} />
       <Tab.Screen name="Favourite" component={FavoriteScreen} />
-      <Tab.Screen name="Account" component={AccountScreen} />
+      <Tab.Screen name="Account" component={AccStack} />
+      
     </Tab.Navigator>
   );
 }
 
 export default function App() {
   return (
+    <HoaDonProvider>
     <ProductProvider>
     <CartProvider>
     <NavigationContainer>
@@ -78,7 +107,7 @@ export default function App() {
         <Stack.Screen name="Splash" component={SplashScreen} />
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         {/* <Stack.Screen name="NumberScreen" component={NumberScreen} /> */}
-        <Stack.Screen name="Order" component={Order} />
+        {/* <Stack.Screen name="Order" component={Order} /> */}
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} />
         <Stack.Screen name="Explore" component={ExploreScreen} />
@@ -86,6 +115,9 @@ export default function App() {
         {/* Đây là Tab chính sau khi đăng nhập xong */}
         <Stack.Screen name="MainTabs" component={MainTabs} />
       </Stack.Navigator>
-    </NavigationContainer></CartProvider></ProductProvider>
+    </NavigationContainer>
+    </CartProvider>
+    </ProductProvider>
+    </HoaDonProvider>
   );
 }

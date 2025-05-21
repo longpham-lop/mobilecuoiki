@@ -142,7 +142,51 @@ const styles = StyleSheet.create({
     counter: { flexDirection: 'row', alignItems: 'center', marginVertical: 10 ,border: '2px solid black'},
     counterButton: { fontSize: 24, paddingHorizontal: 20 ,borderColor:'black',borderRadius:20,border: '2px solid black'},
     removeButton:{alignItems:'flex-end',textAlign:'left',fontSize:20,left:280,top:-50,marginBottom:-50},
-    c:{alignItems:'flex-end',textAlign:'left',fontSize:20,left:240,top:-23,marginBottom:-50}
-    
+    c:{alignItems:'flex-end',textAlign:'left',fontSize:20,left:240,top:-23,marginBottom:-50},
+    itemContainer: {
+  flexDirection: 'row',
+  alignItems: 'center',
+  backgroundColor: '#fff',
+  padding: 12,
+  borderRadius: 12,
+  marginVertical: 8,
+  marginHorizontal: 4,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.1,
+  shadowRadius: 4,
+  elevation: 3, // for Android
+},
+productImage: {
+  width: 80,
+  height: 80,
+  borderRadius: 10,
+  marginRight: 12,
+},
+productName: {
+  fontSize: 16,
+  fontWeight: '600',
+  marginBottom: 4,
+},
+description: {
+  fontSize: 13,
+  color: '#666',
+  marginBottom: 6,
+},
+priceRow: {
+  flexDirection: 'row',
+  alignItems: 'center',
+},
+oldPrice: {
+  fontSize: 14,
+  color: '#999',
+  textDecorationLine: 'line-through',
+  marginRight: 8,
+},
+newPrice: {
+  fontSize: 16,
+  color: '#E07415',
+  fontWeight: 'bold',
+},
   });
   

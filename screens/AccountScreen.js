@@ -1,8 +1,60 @@
-import React from 'react';
+import React, { useState,useContext, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ImageBackground } from 'react-native';
 import { Feather, FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const fetchUserIdAndOrders = async () => {
+  try {
+    const storedId = await AsyncStorage.getItem("userId");
+    const username = await AsyncStorage.getItem("username");
+    return { userId: storedId, username };
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    return { userId: null, username: null };
+  }
+};
 
 export default function AccountScreen({ navigation }) {
+  const [username, setUsername] = useState('');
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const value = await AsyncStorage.getItem('isLoggedIn');
+        // isLoggedIn lưu kiểu string, ví dụ 'true' hoặc 'false'
+        if (value === 'true') {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (e) {
+        console.error('Failed to fetch login status', e);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
+  useEffect(() => {
+    const loadUserData = async () => {
+      const { username } = await fetchUserIdAndOrders();
+      setUsername(username || 'User'); // Fallback to 'User' if username is null
+    };
+    loadUserData();
+  }, []);
+  const handleLogout = async () => {
+  await AsyncStorage.removeItem("username");
+  await AsyncStorage.removeItem("userId");
+  await AsyncStorage.removeItem("token");
+  await AsyncStorage.removeItem("info");
+  await AsyncStorage.setItem("isLoggedIn", "false");
+
+  navigation.replace('Login'); // Quay lại màn hình đăng nhập
+};
+
   return (
     <ImageBackground
       source={require("../assets/splash-icon.png")}
@@ -27,20 +79,48 @@ export default function AccountScreen({ navigation }) {
 
         {/* Hello Text */}
         <Text style={styles.helloText}>Hello,</Text>
-        <Text style={styles.usernameText}>Minh</Text>
+        <Text style={styles.usernameText}>{username}</Text>
 
         {/* Menu Options */}
         <View style={styles.menuBox}>
-          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Order')}><Text style={styles.menuText}>My orders</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>Settings</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>Sign out</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.menuButton} onPress={() => navigation.navigate('Splash')}><Text style={styles.menuText}>About us</Text></TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+                      if (!isLoggedIn) {
+                        alert('Bạn cần đăng nhập để thanh toán!');
+                        return;
+                      }
+                      navigation.navigate('Account', { screen: 'Order' })
+                        }}
+                        style={[
+                          styles.menuButton,
+                          !isLoggedIn && { backgroundColor: '#ccc' }
+                        ]}
+                        disabled={!isLoggedIn} >
+            <Text style={styles.menuText}>My orders</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={handleLogout}
+          >
+            <Text style={styles.menuText}>Settings</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={handleLogout}
+          >
+            <Text style={styles.menuText}>Sign out</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={handleLogout}
+          >
+            <Text style={styles.menuText}>About us</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </ImageBackground>
   );
 }
-
 
 const styles = StyleSheet.create({
   background: {
@@ -52,7 +132,6 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 50,
     alignItems: 'center',
-  
   },
   header: {
     marginBottom: 20,
@@ -87,14 +166,14 @@ const styles = StyleSheet.create({
     color: '#7b4c2f',
   },
   helloText: {
-    fontSize: 22,
-    color: '#000',
+    fontSize: 40,
+    color: 'white',
     marginTop: 10,
   },
   usernameText: {
-    fontSize: 26,
+    fontSize: 40,
     fontWeight: 'bold',
-    color: '#d86f45',
+    color: 'white',
   },
   menuBox: {
     marginTop: 20,
@@ -117,15 +196,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '500',
     color: '#7b4c2f',
-  },
-  helloText: {
-    fontSize: 40,
-    color: 'white',
-    marginTop: 10,
-  },
-  usernameText: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: 'white',
   },
 });

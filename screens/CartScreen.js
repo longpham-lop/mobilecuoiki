@@ -1,10 +1,40 @@
-import React, { useState, useContext } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useContext, useEffect } from 'react';
+import { View, Text, TextInput,FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { CartContext } from './CartContext';
-import { API_URL } from '@env';
+import { ProductContext } from '../contexts/ProductContext';
+import {API_URL} from "@env";
+import FilterModal from './FilterModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 export default function CartScreen({ navigation }) {
+  const [searchText, setSearchText] = useState('');
+  const [showFilter, setShowFilter] = useState(false);
+  // const { product } = route.params;
+  const { products, loading } = useContext(ProductContext);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const value = await AsyncStorage.getItem('isLoggedIn');
+        // isLoggedIn lưu kiểu string, ví dụ 'true' hoặc 'false'
+        if (value === 'true') {
+          setIsLoggedIn(true);
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (e) {
+        console.error('Failed to fetch login status', e);
+        setIsLoggedIn(false);
+      }
+    };
+
+    checkLoginStatus();
+  }, []);
+
   const { cartItems, removeFromCart, addToCart } = useContext(CartContext);
   const [quantities, setQuantities] = useState(
     cartItems.reduce((acc, item) => {
@@ -48,6 +78,27 @@ export default function CartScreen({ navigation }) {
         <Text style={styles.logo}>BEN</Text>
         <Ionicons name="notifications-outline" size={24} color="#E07415" />
       </View>
+      {/* Search Row */}
+      <View style={styles.searchRow}>
+        <View style={styles.searchContainer}>
+          <Ionicons name="search-outline" size={20} style={styles.searchIcon} color="#B5B5B5" />
+          <TextInput
+            placeholder="Search"
+            style={styles.searchInput}
+            value={searchText}
+            onChangeText={setSearchText}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.filterButton}
+          onPress={() => setShowFilter(!showFilter)}
+        >
+          <Ionicons name="options-outline" size={20} color="#E07415" />
+        </TouchableOpacity>
+
+      </View>
+
+      <FilterModal visible={showFilter} onClose={() => setShowFilter(false)} />
 
       {/* Cart Items */}
       <FlatList
@@ -89,7 +140,7 @@ export default function CartScreen({ navigation }) {
                   </TouchableOpacity>
                 </View>
               </View>
-
+                  
               <TouchableOpacity onPress={() => removeFromCart(product.maSanPham)}>
                 <Ionicons name="trash-outline" size={22} color="#E07415" />
               </TouchableOpacity>
@@ -101,6 +152,24 @@ export default function CartScreen({ navigation }) {
       {/* Price Summary */}
       <View style={styles.priceDetails}>
         <Text style={styles.sectionTitle}>Tổng đơn hàng</Text>
+        <FlatList
+        data={cartItems}
+        keyExtractor={item => item.product.maSanPham}
+        renderItem={({ item }) => {
+          const product = item.product;
+          const quantity = quantities[product.id];
+          const price = getDiscountedPrice(product);
+          return (
+            <View style={styles.cartItem11}>
+              <View style={{ flex: 1, marginLeft: 0 }}>
+                <Text style={styles.productName}>{product.tenSanPham}</Text>
+              </View>
+              <Text style={styles.price}>{price.toLocaleString()} VND</Text>
+            </View>
+          );
+        }}
+      />
+      <Text >----------------------------------------------------------------------------------------------------------------------------</Text>
         <View style={styles.priceRow}>
           <Text style={{ fontWeight: 'bold' }}>Tạm tính</Text>
           <Text>{total.toLocaleString()} VND</Text>
@@ -113,6 +182,21 @@ export default function CartScreen({ navigation }) {
           <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Tổng cộng</Text>
           <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{total.toLocaleString()} VND</Text>
         </View>
+        <TouchableOpacity onPress={() => {
+                      if (!isLoggedIn) {
+                        alert('Bạn cần đăng nhập để thanh toán!');
+                        return;
+                      }
+                      navigation.navigate('Cart', { screen: 'Check' });
+                    }}
+                    style={[
+                      styles.checkoutButton,
+                      !isLoggedIn && { backgroundColor: '#ccc' }
+                    ]}
+                    disabled={!isLoggedIn}
+                  >
+            <Text style={styles.checkoutButtonText}>Checkout</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -132,6 +216,46 @@ const styles = StyleSheet.create({
   },
   logo: { fontSize: 22, fontWeight: 'bold', color: '#E07415' },
 
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 19,
+  },
+  searchContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    padding: 40,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+    marginRight: 8,
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInput: {
+    flex: 1,
+  },
+  filterButton: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#E07415',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+
   cartItem: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -140,6 +264,12 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: '#F9F9F9',
     elevation: 2,
+    position: 'relative'
+  },
+  cartItem11: {
+    marginBottom:4,
+    flexDirection: 'row',
+    alignItems: 'center',
     position: 'relative'
   },
   heartIcon: {

@@ -1,84 +1,94 @@
-import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   StyleSheet,
-  Image,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from "axios";
+import React, { useContext, useEffect } from "react";
+import { HoaDonContext } from "../contexts/HoaDonContext";
+import { Ionicons } from '@expo/vector-icons';
 
-const TrackOrdersScreen = () => {
-  const [orders, setOrders] = useState([]);
-  const [userId, setUserId] = useState(null);
+const TrackOrdersScreen = ({ navigation }) => {
+  const {
+    hoaDonList,
+    loading,
+    fetchHoaDonsByMaKH,
+    deleteHoaDon,
+    updateTrangThai,
+  } = useContext(HoaDonContext);
 
   useEffect(() => {
     const fetchUserIdAndOrders = async () => {
-      try {
-        const storedId = await AsyncStorage.getItem("userId");
-        if (storedId) {
-          setUserId(storedId);
-          const res = await axios.get(
-            `${API_URL}/shopbongda/api/hoadon/makh/5`
-          );
-          console.log(res.data);
-          setOrders(res.data);
-        }
-      } catch (err) {
-        console.error("Error fetching orders:", err);
+      const storedId = await AsyncStorage.getItem("userId");
+      if (storedId) {
+        fetchHoaDonsByMaKH(storedId);
       }
     };
-
     fetchUserIdAndOrders();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color="#f57c00" />
+        <Text>Đang tải dữ liệu hóa đơn...</Text>
+      </View>
+    );
+  }
+
   const renderItem = ({ item }) => (
     <View style={styles.card}>
-      <Image
-        source={{
-          uri: item.image || "https://via.placeholder.com/60",
-        }}
-        style={styles.image}
-      />
       <View style={styles.details}>
-        <Text style={styles.title}>{item.tenSanPham || "101 red roses"}</Text>
-        <Text style={styles.text}>Order Number: #{item.id}</Text>
-        <Text style={styles.text}>
-          {new Date(item.ngayMua).toLocaleDateString("en-GB")}
-        </Text>
-        <Text style={styles.text}>Total: {item.tongTien} $</Text>
-      </View>
-      <View style={styles.status}>
-        <Text
-          style={[
-            styles.statusChip,
-            item.trangThai === "Processing"
-              ? styles.processing
-              : styles.delivered,
-          ]}
-        >
-          {item.trangThai}
-        </Text>
-        {item.trangThai === "Processing" && (
-          <TouchableOpacity style={styles.trackBtn}>
-            <Text style={styles.trackText}>Track Order</Text>
-          </TouchableOpacity>
-        )}
+        <Text style={styles.title}>Tên Sản Phẩm: {item.tenHang}</Text>
+        <Text style={styles.text}>Ngày mua: {item.ngayMua}</Text>
+        <Text style={styles.text}>Hóa đơn #{item.id}</Text>
+        <Text style={styles.text}>Giá: {item.gia}</Text>
+        <View style={styles.buttonText}>
+              {item.trangThai == 'Chờ xác nhận' ? (
+              <View>
+                <TouchableOpacity onPress={() =>navigation.navigate('Account', { screen: 'Ordert' })} style={styles.trackBtn1} >
+                <Text style={styles.trackText1}>Track Order</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.trackBtn} >
+                <Text style={styles.trackText}>Processing</Text>
+                </TouchableOpacity>
+              </View>
+              ) : (
+              <TouchableOpacity style={styles.trackBtn} >
+              <Text style={styles.trackText}>Delivered</Text>
+              </TouchableOpacity>
+              )}
+        </View>
       </View>
     </View>
   );
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>🧾 My Orders</Text>
-      <FlatList
-        data={orders}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={renderItem}
-        contentContainerStyle={{ paddingBottom: 100 }}
-      />
+
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => navigation.goBack()}>
+          <Ionicons name="chevron-back" size={24} color="#E07415" />
+        </TouchableOpacity>
+          <Text style={styles.headerTitle}>My Order</Text>
+        <TouchableOpacity onPress={() => navigation.popToTop()}>
+          <Text style={styles.closeText}>✕</Text>
+        </TouchableOpacity>
+      </View>
+
+      <Text style={ styles.headerTitle}>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </Text>
+      {hoaDonList.length === 0 ? (
+        <Text>Không có hóa đơn</Text>
+      ) : (
+        <FlatList
+          data={hoaDonList}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.id.toString()}
+        />
+      )}
     </View>
   );
 };
@@ -86,25 +96,43 @@ const TrackOrdersScreen = () => {
 export default TrackOrdersScreen;
 
 
+
 const styles = StyleSheet.create({
+
+  header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingTop: 20,
+      paddingBottom: 10,
+      backgroundColor: '#fff',
+      bottom: 20,
+    },
+
+    headerTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: '#E07415',
+    },
+
+    closeText: {
+      fontSize: 24,
+      color: '#E07415',
+    },
+
   container: {
     flex: 1,
     backgroundColor: "#fff",
     paddingTop: 50,
     paddingHorizontal: 16,
-  },
-  header: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "#f57c00",
-    marginBottom: 20,
+    
   },
   card: {
     flexDirection: "row",
     backgroundColor: "#fff",
     padding: 16,
-    marginBottom: 12,
+    marginBottom: -40,
     borderRadius: 12,
     elevation: 2,
     shadowColor: "#000",
@@ -124,11 +152,11 @@ const styles = StyleSheet.create({
   },
   title: {
     fontWeight: "bold",
-    fontSize: 16,
+    fontSize: 20,
     marginBottom: 4,
   },
   text: {
-    fontSize: 13,
+    fontSize: 16,
     color: "#555",
   },
   status: {
@@ -152,12 +180,37 @@ const styles = StyleSheet.create({
   trackBtn: {
     backgroundColor: "#f5a623",
     paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+    paddingHorizontal: 10, 
+    borderRadius: 45,
     marginTop: 4,
+    marginLeft: 270,
+    height:40,
+    top:-35,
+    textAlign:"center",
+  },
+  trackBtn1: {
+    backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#f5a623",
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 45,
+    marginTop: 4,
+    top:-35,
+    marginLeft: 270,
+    height:40,
+    textAlign:"center",
   },
   trackText: {
     color: "#fff",
+    textAlign:"center",
+    marginTop:7,
+    fontSize: 12,
+  },
+  trackText1: {
+    color: "#f5a623",
+    textAlign:"center",
+    marginTop:7,
     fontSize: 12,
   },
 });

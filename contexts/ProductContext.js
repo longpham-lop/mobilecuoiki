@@ -10,7 +10,7 @@ export const ProductProvider = ({ children }) => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get(`${API_URL}/shopbongda/api/products`);
+      const response = await axios.get(`http://192.168.105.140:8080/shopbongda/api/products`);
       setProducts(response.data);
       console.info(response.data);
     } catch (error) {

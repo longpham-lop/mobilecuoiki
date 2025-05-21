@@ -11,6 +11,7 @@ export default function LoginScreen({ navigation }) {
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
 
+
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert('Error', 'Please enter email and password.');
@@ -28,11 +29,16 @@ export default function LoginScreen({ navigation }) {
 
       if (response.ok) {
         const data = await response.json();
-        await AsyncStorage.setItem("userId", response.data.userId);
+
+        console.log(API_URL);
+        
         console.log('JWT Token:', data.jwt);
         console.log('User Info:', data.user);
+        await AsyncStorage.setItem("isLoggedIn", "true");
 
         // Lưu token nếu cần:
+        await AsyncStorage.setItem("username", data.user.fullName.toString());
+        await AsyncStorage.setItem("userId", data.user.accountId.toString());
         await AsyncStorage.setItem('info', JSON.stringify(data.user));
         await AsyncStorage.setItem('token', data.jwt);
 

@@ -19,7 +19,7 @@ const ExploreScreen = (route) => {
     if (!filename) return null;
     if (filename.startsWith('http')) return filename;
 
-    return `${API_URL}/shopbongda/api/upload/${filename}`;
+    return `http://192.168.105.140:8080/shopbongda/api/upload/${filename}`;
   };
 
   const filteredProducts = products.filter(item =>
